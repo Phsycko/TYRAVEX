@@ -1,14 +1,10 @@
 <template>
-  <SystemLayout />
+  <Dashboard />
 </template>
 
 <script setup lang="ts">
-import SystemLayout from '@/layouts/SystemLayout.vue'
+import Dashboard from '@/views/Dashboard.vue'
 </script>
 
 <style>
-@import './styles/tokens.css';
-@import './styles/base.css';
-@import './styles/typography.css';
-@import './styles/layout.css';
 </style>

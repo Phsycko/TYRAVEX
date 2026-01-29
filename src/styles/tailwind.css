@@ -1,0 +1,79 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+    body {
+        @apply bg-tyravex-bg-primary text-tyravex-text-primary font-sans antialiased;
+    }
+
+    * {
+        @apply border-tyravex-border;
+    }
+}
+
+@layer components {
+
+    /* Custom scrollbar */
+    .custom-scrollbar::-webkit-scrollbar {
+        width: 6px;
+        height: 6px;
+    }
+
+    .custom-scrollbar::-webkit-scrollbar-track {
+        @apply bg-tyravex-bg-secondary;
+    }
+
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+        @apply bg-tyravex-text-muted rounded-full;
+    }
+
+    .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+        @apply bg-tyravex-text-secondary;
+    }
+
+    /* Terminal-like text */
+    .terminal-text {
+        @apply font-mono text-sm leading-relaxed;
+    }
+
+    /* Glow effect */
+    .glow-blue {
+        text-shadow: 0 0 10px rgba(0, 212, 255, 0.5);
+    }
+
+    .glow-green {
+        text-shadow: 0 0 10px rgba(0, 255, 136, 0.5);
+    }
+
+    .glow-yellow {
+        text-shadow: 0 0 10px rgba(255, 204, 0, 0.5);
+    }
+
+    .glow-red {
+        text-shadow: 0 0 10px rgba(255, 51, 102, 0.5);
+    }
+
+    /* Panel styles */
+    .panel {
+        @apply bg-tyravex-bg-secondary border border-tyravex-border rounded-lg p-4;
+    }
+
+    /* Button styles */
+    .btn-command {
+        @apply px-4 py-2 bg-tyravex-bg-tertiary border border-tyravex-accent-blue/30 text-tyravex-accent-blue rounded hover:bg-tyravex-accent-blue/10 hover:border-tyravex-accent-blue transition-all duration-200 text-sm font-medium;
+    }
+
+    .btn-command:hover {
+        box-shadow: 0 0 15px rgba(0, 212, 255, 0.2);
+    }
+}
+
+@layer utilities {
+    .text-gradient-blue {
+        background: linear-gradient(135deg, #00d4ff 0%, #00ffcc 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+}
