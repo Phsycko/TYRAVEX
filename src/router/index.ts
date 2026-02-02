@@ -1,6 +1,6 @@
 /**
  * TYRAVEX Router Configuration
- * Navigation routes for all system domains
+ * Electoral Intelligence Platform - Navigation Routes
  */
 
 import { createRouter, createWebHistory } from 'vue-router'
@@ -10,57 +10,128 @@ const router = createRouter({
     routes: [
         {
             path: '/',
-            redirect: '/overview'
+            redirect: '/dashboard'
         },
         {
-            path: '/overview',
-            name: 'overview',
-            component: () => import('../views/Overview.vue'),
+            path: '/dashboard',
+            name: 'dashboard',
+            component: () => import('../views/DashboardView.vue'),
             meta: {
-                title: 'VISIÓN GENERAL'
+                title: 'Centro de Comando',
+                module: 'command'
             }
         },
         {
-            path: '/domains',
-            name: 'domains',
-            component: () => import('../views/Domains.vue'),
+            path: '/analytics',
+            name: 'analytics',
+            component: () => import('../views/AnalyticsView.vue'),
             meta: {
-                title: 'DOMINIOS'
+                title: 'Analytics - Inteligencia Geografica',
+                module: 'analytics'
             }
         },
         {
-            path: '/intelligence',
-            name: 'intelligence',
-            component: () => import('../views/Intelligence.vue'),
+            path: '/monitor',
+            name: 'monitor',
+            component: () => import('../views/MonitorView.vue'),
             meta: {
-                title: 'INTELIGENCIA'
+                title: 'Monitor - Vigilancia en Tiempo Real',
+                module: 'monitor'
             }
         },
         {
-            path: '/operations',
-            name: 'operations',
-            component: () => import('../views/Operations.vue'),
+            path: '/predict',
+            name: 'predict',
+            component: () => import('../views/PredictView.vue'),
             meta: {
-                title: 'OPERACIONES'
+                title: 'Predict - Modelado Predictivo',
+                module: 'predict'
             }
         },
         {
-            path: '/audit',
-            name: 'audit',
-            component: () => import('../views/Audit.vue'),
+            path: '/research',
+            name: 'research',
+            component: () => import('../views/ResearchView.vue'),
             meta: {
-                title: 'AUDITORÍA'
+                title: 'Research - Inteligencia de Oposicion',
+                module: 'research'
+            }
+        },
+        // --- NEW MODULES ---
+        {
+            path: '/control-informacion',
+            name: 'control-informacion',
+            component: () => import('../views/ControlInformacionView.vue'),
+            meta: {
+                title: 'Control de Informacion',
+                module: 'control-informacion'
+            }
+        },
+        {
+            path: '/gestion-crisis',
+            name: 'gestion-crisis',
+            component: () => import('../views/GestionCrisisView.vue'),
+            meta: {
+                title: 'Gestion de Crisis',
+                module: 'gestion-crisis'
+            }
+        },
+        {
+            path: '/analisis-territorial',
+            name: 'analisis-territorial',
+            component: () => import('../views/AnalisisTerritorialView.vue'),
+            meta: {
+                title: 'Analisis Territorial',
+                module: 'analisis-territorial'
+            }
+        },
+        {
+            path: '/estrategia-seguridad',
+            name: 'estrategia-seguridad',
+            component: () => import('../views/EstrategiaSeguridadView.vue'),
+            meta: {
+                title: 'Estrategia y Seguridad',
+                module: 'estrategia-seguridad'
+            }
+        },
+        {
+            path: '/vista-ejecutiva',
+            name: 'vista-ejecutiva',
+            component: () => import('../views/VistaEjecutivaView.vue'),
+            meta: {
+                title: 'Vista Ejecutiva',
+                module: 'vista-ejecutiva'
+            }
+        },
+        {
+            path: '/seguridad',
+            name: 'seguridad',
+            component: () => import('../views/SeguridadView.vue'),
+            meta: {
+                title: 'Seguridad y Soberania',
+                module: 'seguridad'
             }
         },
         {
             path: '/settings',
             name: 'settings',
-            component: () => import('../views/Settings.vue'),
+            component: () => import('../views/SettingsView.vue'),
             meta: {
-                title: 'CONFIGURACIÓN'
+                title: 'Configuracion',
+                module: 'settings'
             }
+        },
+        {
+            path: '/:pathMatch(.*)*',
+            redirect: '/dashboard'
         }
     ]
+})
+
+// Update document title on navigation
+router.beforeEach((to, _from, next) => {
+    document.title = `${to.meta.title || 'TYRAVEX'} | TYRAVEX Electoral Intelligence`
+    next()
 })
 
 export default router
