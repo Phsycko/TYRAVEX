@@ -24,7 +24,7 @@ const router = createRouter({
         {
             path: '/analytics',
             name: 'analytics',
-            component: () => import('../views/AnalyticsView.vue'),
+            component: () => import('../views/AnalyticsViewWrapper.vue'),
             meta: {
                 title: 'Analytics - Inteligencia Geografica',
                 module: 'analytics'

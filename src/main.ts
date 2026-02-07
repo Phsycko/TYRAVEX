@@ -7,6 +7,7 @@ import { createApp } from 'vue'
 import { createPinia } from 'pinia'
 import { MotionPlugin } from '@vueuse/motion'
 import './styles/tailwind.css'
+import 'leaflet/dist/leaflet.css'
 import App from './App.vue'
 import router from './router'
 
