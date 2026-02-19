@@ -1,375 +1,191 @@
-<script setup lang="ts">
-import { computed } from 'vue'
-import { useRouter } from 'vue-router'
-import Card from '@/components/common/Card.vue'
-import Stat from '@/components/common/Stat.vue'
-import Badge from '@/components/common/Badge.vue'
-import LiveIndicator from '@/components/common/LiveIndicator.vue'
-import ProgressBar from '@/components/common/ProgressBar.vue'
-import { dashboardData, monitorData, predictData } from '@/data/mockData'
-
-const router = useRouter()
-
-// KPIs
-const kpis = computed(() => dashboardData.kpis)
-const tendencias = computed(() => dashboardData.tendencias)
-const alertas = computed(() => dashboardData.alertas)
-
-// Quick access modules
-const modules = [
-  {
-    id: 'analytics',
-    name: 'Analytics',
-    icon: 'M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z',
-    description: 'Inteligencia geografica y demografica',
-    path: '/analytics',
-    color: 'bg-blue-500/20 text-blue-400'
-  },
-  {
-    id: 'monitor',
-    name: 'Monitor',
-    icon: 'M15 12a3 3 0 11-6 0 3 3 0 016 0z M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z',
-    description: 'Vigilancia en tiempo real',
-    path: '/monitor',
-    color: 'bg-green-500/20 text-green-400'
-  },
-  {
-    id: 'predict',
-    name: 'Predict',
-    icon: 'M13 10V3L4 14h7v7l9-11h-7z',
-    description: 'Modelado predictivo con IA',
-    path: '/predict',
-    color: 'bg-yellow-500/20 text-yellow-400'
-  },
-  {
-    id: 'research',
-    name: 'Research',
-    icon: 'M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z',
-    description: 'Inteligencia de oposicion',
-    path: '/research',
-    color: 'bg-purple-500/20 text-purple-400'
-  }
-]
-
-const navigateTo = (path: string) => {
-  router.push(path)
-}
-
-const getAlertIcon = (tipo: string) => {
-  switch (tipo) {
-    case 'critical':
-      return 'M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z'
-    case 'warning':
-      return 'M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z'
-    default:
-      return 'M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z'
-  }
-}
-
-const getAlertColor = (tipo: string) => {
-  switch (tipo) {
-    case 'critical': return 'text-tyravex-danger'
-    case 'warning': return 'text-tyravex-warning'
-    default: return 'text-tyravex-primary-light'
-  }
-}
-
-const formatNumber = (num: number): string => {
-  if (num >= 1000000) return (num / 1000000).toFixed(1) + 'M'
-  if (num >= 1000) return (num / 1000).toFixed(1) + 'K'
-  return num.toString()
-}
-</script>
-
 <template>
-  <div class="space-y-6 animate-fade-in">
-    <!-- Header con indicador LIVE -->
-    <div class="flex items-center justify-between">
-      <div>
-        <h1 class="text-2xl font-bold text-tyravex-text-primary">Centro de Comando</h1>
-        <p class="text-tyravex-text-muted mt-1">Vista 360° de la campana electoral</p>
+  <div class="dashboard-view">
+    <header class="view-header">
+      <div class="section-tag">COMMAND CENTER</div>
+      <h1 class="section-title">ELECTORAL INTELLIGENCE HQ</h1>
+      <p class="section-subtitle">Real-time electoral intelligence overview — all modules reporting</p>
+    </header>
+
+    <div class="kpi-row">
+      <div class="kpi-card" v-for="kpi in kpis" :key="kpi.label">
+        <div class="kpi-label">{{ kpi.label }}</div>
+        <div class="kpi-value" :style="{ color: kpi.color }">{{ kpi.value }}</div>
+        <div class="kpi-delta" :class="kpi.deltaType">
+          {{ kpi.deltaType === 'up' ? '▲' : '▼' }} {{ kpi.delta }}
+        </div>
       </div>
-      <LiveIndicator />
     </div>
 
-    <!-- KPIs principales -->
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-      <Stat
-        :label="kpis.intencionVoto.label"
-        :value="`${kpis.intencionVoto.value}${kpis.intencionVoto.unit}`"
-        :change="kpis.intencionVoto.change"
-        change-label="vs semana pasada"
-        icon="📊"
-      />
-      <Stat
-        :label="kpis.sentimientoPublico.label"
-        :value="`+${kpis.sentimientoPublico.value}${kpis.sentimientoPublico.unit}`"
-        :change="kpis.sentimientoPublico.change"
-        change-label="vs semana pasada"
-        icon="💬"
-      />
-      <Stat
-        :label="kpis.alcanceMedios.label"
-        :value="`${kpis.alcanceMedios.value}${kpis.alcanceMedios.unit}`"
-        :change="kpis.alcanceMedios.change"
-        change-label="impresiones"
-        icon="📡"
-      />
-      <Stat
-        :label="kpis.mencionesTotales.label"
-        :value="formatNumber(kpis.mencionesTotales.value)"
-        :change="kpis.mencionesTotales.change"
-        change-label="esta semana"
-        icon="📱"
-      />
-    </div>
-
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-      <!-- Grafico de tendencias -->
-      <Card title="Tendencias Ultimos 30 Dias" class="lg:col-span-2">
-        <div class="h-64 flex items-end justify-between gap-2 px-4">
-          <div
-            v-for="(punto, index) in tendencias"
-            :key="index"
-            class="flex-1 flex flex-col items-center gap-2"
-          >
-            <div class="w-full flex flex-col items-center gap-1">
-              <!-- Barra de intencion -->
-              <div
-                class="w-full max-w-8 bg-tyravex-success rounded-t transition-all duration-500"
-                :style="{ height: `${punto.intencion * 2}px` }"
-              />
-              <!-- Barra de sentimiento -->
-              <div
-                class="w-full max-w-8 bg-tyravex-secondary rounded-b transition-all duration-500"
-                :style="{ height: `${punto.sentimiento * 1.5}px` }"
-              />
-            </div>
-            <span class="text-xs text-tyravex-text-muted">{{ punto.fecha }}</span>
-          </div>
+    <div class="grid-2col">
+      <div class="card-panel">
+        <div class="card-header">
+          <span class="card-title">VOTE INTENTION TREND</span>
+          <span class="live-dot"></span>
         </div>
-        <div class="flex items-center justify-center gap-6 mt-4 pt-4 border-t border-tyravex-border">
-          <div class="flex items-center gap-2">
-            <div class="w-3 h-3 rounded bg-tyravex-success" />
-            <span class="text-sm text-tyravex-text-muted">Intencion de voto</span>
-          </div>
-          <div class="flex items-center gap-2">
-            <div class="w-3 h-3 rounded bg-tyravex-secondary" />
-            <span class="text-sm text-tyravex-text-muted">Sentimiento</span>
-          </div>
+        <v-chart :option="trendChartOption" style="height: 320px;" autoresize />
+      </div>
+      <div class="card-panel">
+        <div class="card-header">
+          <span class="card-title">SENTIMENT DISTRIBUTION</span>
         </div>
-      </Card>
-
-      <!-- Alertas recientes -->
-      <Card title="Alertas Recientes">
-        <template #actions>
-          <Badge variant="danger" dot pulse>{{ alertas.length }}</Badge>
-        </template>
-
-        <div class="space-y-3">
-          <div
-            v-for="alerta in alertas"
-            :key="alerta.id"
-            class="flex items-start gap-3 p-3 rounded-lg bg-tyravex-bg-tertiary/50 hover:bg-tyravex-bg-tertiary cursor-pointer transition-colors"
-            @click="navigateTo(`/${alerta.modulo}`)"
-          >
-            <svg
-              class="w-5 h-5 flex-shrink-0 mt-0.5"
-              :class="getAlertColor(alerta.tipo)"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" :d="getAlertIcon(alerta.tipo)" />
-            </svg>
-            <div class="flex-1 min-w-0">
-              <p class="text-sm text-tyravex-text-primary">{{ alerta.mensaje }}</p>
-              <p class="text-xs text-tyravex-text-muted mt-1">{{ alerta.tiempo }}</p>
-            </div>
-          </div>
-        </div>
-
-        <button class="w-full mt-4 text-sm text-tyravex-secondary hover:underline">
-          Ver todas las alertas
-        </button>
-      </Card>
-    </div>
-
-    <!-- Prediccion rapida y Share of Voice -->
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-      <!-- Prediccion actual -->
-      <Card title="Prediccion Actual">
-        <template #actions>
-          <Badge variant="success">Modelo activo</Badge>
-        </template>
-
-        <div class="space-y-4">
-          <!-- Tu candidato -->
-          <div>
-            <div class="flex items-center justify-between mb-2">
-              <span class="text-sm font-medium text-tyravex-text-primary">{{ predictData.prediccion.candidato.nombre }}</span>
-              <span class="text-sm font-mono text-tyravex-success">{{ predictData.prediccion.candidato.porcentaje }}%</span>
-            </div>
-            <ProgressBar
-              :value="predictData.prediccion.candidato.porcentaje"
-              variant="success"
-              size="lg"
-            />
-          </div>
-
-          <!-- Oponente -->
-          <div>
-            <div class="flex items-center justify-between mb-2">
-              <span class="text-sm font-medium text-tyravex-text-primary">{{ predictData.prediccion.oponente1.nombre }}</span>
-              <span class="text-sm font-mono text-tyravex-danger">{{ predictData.prediccion.oponente1.porcentaje }}%</span>
-            </div>
-            <ProgressBar
-              :value="predictData.prediccion.oponente1.porcentaje"
-              variant="danger"
-              size="lg"
-            />
-          </div>
-
-          <!-- Otros -->
-          <div>
-            <div class="flex items-center justify-between mb-2">
-              <span class="text-sm font-medium text-tyravex-text-muted">{{ predictData.prediccion.otros.nombre }}</span>
-              <span class="text-sm font-mono text-tyravex-text-muted">{{ predictData.prediccion.otros.porcentaje }}%</span>
-            </div>
-            <ProgressBar
-              :value="predictData.prediccion.otros.porcentaje"
-              variant="warning"
-              size="lg"
-            />
-          </div>
-
-          <!-- Probabilidad de victoria -->
-          <div class="mt-6 p-4 rounded-lg bg-tyravex-success/10 border border-tyravex-success/30">
-            <div class="flex items-center justify-between">
-              <span class="text-sm text-tyravex-success">Probabilidad de Victoria</span>
-              <span class="text-2xl font-bold font-mono text-tyravex-success">{{ predictData.probabilidadVictoria }}%</span>
-            </div>
-          </div>
-        </div>
-      </Card>
-
-      <!-- Share of Voice -->
-      <Card title="Share of Voice">
-        <template #actions>
-          <span class="text-xs text-tyravex-text-muted">Ultimas 24 horas</span>
-        </template>
-
-        <div class="space-y-4">
-          <div
-            v-for="item in monitorData.shareOfVoice"
-            :key="item.candidato"
-            class="flex items-center gap-4"
-          >
-            <div class="w-24 text-sm text-tyravex-text-secondary truncate">{{ item.candidato }}</div>
-            <div class="flex-1">
-              <div class="h-6 bg-tyravex-bg-tertiary rounded-full overflow-hidden">
-                <div
-                  class="h-full rounded-full transition-all duration-500"
-                  :style="{ width: `${item.porcentaje}%`, backgroundColor: item.color }"
-                />
-              </div>
-            </div>
-            <div class="w-12 text-right text-sm font-mono" :style="{ color: item.color }">
-              {{ item.porcentaje }}%
-            </div>
-          </div>
-        </div>
-
-        <!-- Menciones totales -->
-        <div class="mt-6 pt-4 border-t border-tyravex-border">
-          <div class="flex items-center justify-between">
-            <div class="flex items-center gap-3">
-              <div class="flex items-center gap-2">
-                <div class="w-2 h-2 rounded-full bg-tyravex-success" />
-                <span class="text-xs text-tyravex-text-muted">Positivas: {{ monitorData.sentimiento.positivas }}</span>
-              </div>
-              <div class="flex items-center gap-2">
-                <div class="w-2 h-2 rounded-full bg-tyravex-gray-400" />
-                <span class="text-xs text-tyravex-text-muted">Neutrales: {{ monitorData.sentimiento.neutrales }}</span>
-              </div>
-              <div class="flex items-center gap-2">
-                <div class="w-2 h-2 rounded-full bg-tyravex-danger" />
-                <span class="text-xs text-tyravex-text-muted">Negativas: {{ monitorData.sentimiento.negativas }}</span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </Card>
-    </div>
-
-    <!-- Acceso rapido a modulos -->
-    <div>
-      <h2 class="text-lg font-semibold text-tyravex-text-primary mb-4">Acceso Rapido</h2>
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <button
-          v-for="mod in modules"
-          :key="mod.id"
-          class="card text-left group hover:border-tyravex-secondary/50 transition-all"
-          @click="navigateTo(mod.path)"
-        >
-          <div class="flex items-start gap-4">
-            <div
-              class="w-12 h-12 rounded-lg flex items-center justify-center"
-              :class="mod.color"
-            >
-              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" :d="mod.icon" />
-              </svg>
-            </div>
-            <div class="flex-1 min-w-0">
-              <h3 class="font-semibold text-tyravex-text-primary group-hover:text-tyravex-secondary transition-colors">
-                {{ mod.name }}
-              </h3>
-              <p class="text-sm text-tyravex-text-muted mt-1">{{ mod.description }}</p>
-            </div>
-            <svg
-              class="w-5 h-5 text-tyravex-text-muted group-hover:text-tyravex-secondary group-hover:translate-x-1 transition-all"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
-            </svg>
-          </div>
-        </button>
+        <v-chart :option="sentimentChartOption" style="height: 320px;" autoresize />
       </div>
     </div>
 
-    <!-- Trending Topics -->
-    <Card title="Trending Topics">
-      <template #actions>
-        <LiveIndicator size="sm" text="ACTUALIZANDO" />
-      </template>
+    <div class="card-panel mt-16">
+      <div class="card-header">
+        <span class="card-title">MODULE STATUS</span>
+        <span class="badge badge-success">ALL SYSTEMS OPERATIONAL</span>
+      </div>
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>MODULE</th>
+            <th>STATUS</th>
+            <th>HEALTH</th>
+            <th>ALERTS</th>
+            <th>LAST UPDATE</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="mod in modules" :key="mod.name">
+            <td style="font-weight: 600;">{{ mod.name }}</td>
+            <td><span class="badge" :class="'badge-' + mod.statusType">{{ mod.status }}</span></td>
+            <td>
+              <div class="health-bar">
+                <div class="health-fill" :style="{ width: mod.health + '%', background: mod.health > 80 ? '#00ffaa' : mod.health > 50 ? '#ffcc00' : '#ff4444' }"></div>
+              </div>
+              <span class="mono-text" style="font-size: 11px;">{{ mod.health }}%</span>
+            </td>
+            <td><span class="mono-text">{{ mod.alerts }}</span></td>
+            <td><span class="mono-text">{{ mod.lastUpdate }}</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
 
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
-        <div
-          v-for="topic in monitorData.trending"
-          :key="topic.id"
-          class="p-4 rounded-lg bg-tyravex-bg-tertiary/50 hover:bg-tyravex-bg-tertiary cursor-pointer transition-colors"
-        >
-          <div class="flex items-center justify-between mb-2">
-            <Badge
-              :variant="topic.sentimiento === 'positive' ? 'success' : topic.sentimiento === 'negative' ? 'danger' : 'neutral'"
-              dot
-            >
-              {{ topic.sentimiento === 'positive' ? 'Positivo' : topic.sentimiento === 'negative' ? 'Negativo' : 'Neutral' }}
-            </Badge>
-            <span
-              class="text-xs font-medium"
-              :class="topic.cambio > 0 ? 'text-tyravex-success' : 'text-tyravex-danger'"
-            >
-              {{ topic.cambio > 0 ? '+' : '' }}{{ topic.cambio }}%
-            </span>
-          </div>
-          <h4 class="font-medium text-tyravex-text-primary truncate">{{ topic.tema }}</h4>
-          <p class="text-sm text-tyravex-text-muted mt-1">{{ formatNumber(topic.menciones) }} menciones</p>
+    <div class="card-panel mt-16">
+      <div class="card-header">
+        <span class="card-title">RECENT INTELLIGENCE FEED</span>
+      </div>
+      <div class="feed-list">
+        <div class="feed-item" v-for="(item, i) in feedItems" :key="i">
+          <span class="feed-time mono-text">{{ item.time }}</span>
+          <span class="feed-source" :style="{ color: item.color }">{{ item.source }}</span>
+          <span class="feed-msg">{{ item.message }}</span>
+          <span class="badge" :class="'badge-' + item.severity">{{ item.severity.toUpperCase() }}</span>
         </div>
       </div>
-    </Card>
+    </div>
+
+    <footer class="view-footer">TYRAVEX INTELLIGENCE SYSTEM // CONFIDENTIAL // 2026</footer>
   </div>
 </template>
+
+<script setup lang="ts">
+import { use } from 'echarts/core'
+import { CanvasRenderer } from 'echarts/renderers'
+import { LineChart, PieChart } from 'echarts/charts'
+import { GridComponent, TooltipComponent, LegendComponent } from 'echarts/components'
+import VChart from 'vue-echarts'
+
+use([CanvasRenderer, LineChart, PieChart, GridComponent, TooltipComponent, LegendComponent])
+
+const kpis = [
+  { label: 'VOTE INTENTION', value: '48.3%', delta: '+2.1%', deltaType: 'up', color: '#ff6b35' },
+  { label: 'SENTIMENT SCORE', value: '62%', delta: '+5.4%', deltaType: 'up', color: '#00ffaa' },
+  { label: 'THREAT LEVEL', value: 'MEDIUM', delta: '3 active', deltaType: 'down', color: '#ffcc00' },
+  { label: 'ACTIVE OPERATIONS', value: '12', delta: '+2', deltaType: 'up', color: '#4A90E2' },
+  { label: 'SYSTEM HEALTH', value: '99.94%', delta: '0.02%', deltaType: 'up', color: '#00ffaa' },
+]
+
+const trendChartOption = {
+  backgroundColor: 'transparent',
+  tooltip: { trigger: 'axis', backgroundColor: 'rgba(20,22,28,0.95)', borderColor: 'rgba(255,255,255,0.08)', textStyle: { color: '#e0e0e0', fontFamily: 'Montserrat' } },
+  grid: { left: 50, right: 20, top: 20, bottom: 30 },
+  xAxis: { type: 'category', data: ['01.FEB', '02.FEB', '03.FEB', '04.FEB', '05.FEB', '06.FEB', '07.FEB', '08.FEB', '09.FEB', '10.FEB'], axisLine: { lineStyle: { color: 'rgba(255,255,255,0.08)' } }, axisLabel: { color: '#888', fontFamily: 'Roboto Mono', fontSize: 10 } },
+  yAxis: { type: 'value', min: 30, max: 60, axisLine: { show: false }, splitLine: { lineStyle: { color: 'rgba(255,255,255,0.05)' } }, axisLabel: { color: '#888', fontFamily: 'Roboto Mono', fontSize: 10 } },
+  series: [
+    { name: 'Candidate A', type: 'line', data: [44.2, 44.8, 45.1, 45.9, 46.3, 47.0, 47.2, 47.8, 48.0, 48.3], smooth: true, lineStyle: { color: '#ff6b35', width: 2 }, itemStyle: { color: '#ff6b35' }, areaStyle: { color: { type: 'linear', x: 0, y: 0, x2: 0, y2: 1, colorStops: [{ offset: 0, color: 'rgba(255,107,53,0.25)' }, { offset: 1, color: 'rgba(255,107,53,0)' }] } } },
+    { name: 'Candidate B', type: 'line', data: [38.1, 37.9, 38.4, 37.8, 37.2, 36.9, 37.1, 36.5, 36.2, 35.8], smooth: true, lineStyle: { color: '#4A90E2', width: 2 }, itemStyle: { color: '#4A90E2' }, areaStyle: { color: { type: 'linear', x: 0, y: 0, x2: 0, y2: 1, colorStops: [{ offset: 0, color: 'rgba(74,144,226,0.15)' }, { offset: 1, color: 'rgba(74,144,226,0)' }] } } },
+    { name: 'Candidate C', type: 'line', data: [17.7, 17.3, 16.5, 16.3, 16.5, 16.1, 15.7, 15.7, 15.8, 15.9], smooth: true, lineStyle: { color: '#888', width: 1.5 }, itemStyle: { color: '#888' } },
+  ],
+}
+
+const sentimentChartOption = {
+  backgroundColor: 'transparent',
+  tooltip: { trigger: 'item', backgroundColor: 'rgba(20,22,28,0.95)', borderColor: 'rgba(255,255,255,0.08)', textStyle: { color: '#e0e0e0', fontFamily: 'Montserrat' } },
+  legend: { bottom: 10, textStyle: { color: '#a0a0a0', fontFamily: 'Montserrat', fontSize: 11 } },
+  series: [{
+    type: 'pie', radius: ['40%', '70%'], center: ['50%', '45%'], avoidLabelOverlap: false,
+    label: { show: false },
+    data: [
+      { value: 62, name: 'Positive', itemStyle: { color: '#00ffaa' } },
+      { value: 23, name: 'Neutral', itemStyle: { color: '#4A90E2' } },
+      { value: 15, name: 'Negative', itemStyle: { color: '#ff4444' } },
+    ],
+  }],
+}
+
+const modules = [
+  { name: 'Analytics', status: 'ACTIVE', statusType: 'success', health: 98, alerts: 0, lastUpdate: '10.FEB.2026 23:41' },
+  { name: 'Monitor', status: 'ACTIVE', statusType: 'success', health: 95, alerts: 2, lastUpdate: '10.FEB.2026 23:40' },
+  { name: 'Predict', status: 'ACTIVE', statusType: 'success', health: 92, alerts: 1, lastUpdate: '10.FEB.2026 23:38' },
+  { name: 'Research', status: 'ACTIVE', statusType: 'success', health: 97, alerts: 0, lastUpdate: '10.FEB.2026 23:42' },
+  { name: 'Territorio', status: 'ACTIVE', statusType: 'success', health: 89, alerts: 3, lastUpdate: '10.FEB.2026 23:35' },
+  { name: 'Crisis', status: 'READY', statusType: 'warning', health: 100, alerts: 0, lastUpdate: '10.FEB.2026 23:30' },
+  { name: 'Control Info', status: 'ACTIVE', statusType: 'success', health: 94, alerts: 1, lastUpdate: '10.FEB.2026 23:39' },
+  { name: 'Estrategia', status: 'ACTIVE', statusType: 'success', health: 91, alerts: 0, lastUpdate: '10.FEB.2026 23:37' },
+  { name: 'Seguridad', status: 'ACTIVE', statusType: 'success', health: 99, alerts: 0, lastUpdate: '10.FEB.2026 23:42' },
+]
+
+const feedItems = [
+  { time: '23:42:18', source: 'MONITOR', color: '#4A90E2', message: 'Trending topic detected: #DebatePresidencial2026 — 12.4K mentions in last hour', severity: 'warning' },
+  { time: '23:38:05', source: 'PREDICT', color: '#ff6b35', message: 'Vote intention model updated — confidence interval narrowed to ±1.8%', severity: 'info' },
+  { time: '23:35:42', source: 'TERRITORIO', color: '#00ffaa', message: 'Chihuahua district 04 flagged — anomalous sentiment shift detected', severity: 'warning' },
+  { time: '23:31:19', source: 'CRISIS', color: '#ff4444', message: 'Negative narrative cluster identified — coordinated bot activity suspected', severity: 'danger' },
+  { time: '23:28:07', source: 'RESEARCH', color: '#ffcc00', message: 'Opposition candidate policy document analyzed — 3 contradiction points found', severity: 'info' },
+  { time: '23:22:55', source: 'SEGURIDAD', color: '#00ffaa', message: 'All API endpoints passed health check — 99.94% uptime maintained', severity: 'success' },
+]
+</script>
+
+<style scoped>
+.dashboard-view { font-family: 'Montserrat', sans-serif; color: #e0e0e0; }
+.view-header { margin-bottom: 24px; }
+.section-tag { display: inline-block; font-family: 'Oswald', sans-serif; font-size: 11px; font-weight: 600; letter-spacing: 0.15em; color: #ff6b35; padding: 4px 12px; border: 1px solid rgba(255, 107, 53, 0.3); border-radius: 2px; margin-bottom: 8px; text-transform: uppercase; }
+.section-title { font-family: 'Oswald', sans-serif; font-size: 28px; font-weight: 600; color: #e0e0e0; letter-spacing: 0.05em; margin: 0; }
+.section-subtitle { font-size: 13px; color: #888; margin-top: 4px; }
+.kpi-row { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; margin-bottom: 16px; }
+.kpi-card { background: rgba(20, 22, 28, 0.7); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 4px; padding: 16px; text-align: center; }
+.kpi-label { font-size: 10px; font-weight: 600; letter-spacing: 0.1em; color: #888; text-transform: uppercase; margin-bottom: 8px; }
+.kpi-value { font-family: 'Oswald', sans-serif; font-size: 32px; font-weight: 600; line-height: 1; }
+.kpi-delta { font-family: 'Roboto Mono', monospace; font-size: 11px; margin-top: 6px; }
+.kpi-delta.up { color: #00ffaa; }
+.kpi-delta.down { color: #ff4444; }
+.grid-2col { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.card-panel { background: rgba(20, 22, 28, 0.7); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 4px; padding: 20px; }
+.mt-16 { margin-top: 16px; }
+.card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+.card-title { font-family: 'Oswald', sans-serif; font-size: 13px; font-weight: 500; letter-spacing: 0.1em; color: #a0a0a0; text-transform: uppercase; }
+.badge { font-family: 'Roboto Mono', monospace; font-size: 10px; font-weight: 600; padding: 3px 8px; border-radius: 2px; letter-spacing: 0.05em; text-transform: uppercase; }
+.badge-success { background: rgba(0, 255, 170, 0.15); color: #00ffaa; }
+.badge-warning { background: rgba(255, 204, 0, 0.15); color: #ffcc00; }
+.badge-danger { background: rgba(255, 68, 68, 0.15); color: #ff4444; }
+.badge-info { background: rgba(74, 144, 226, 0.15); color: #4A90E2; }
+.data-table { width: 100%; border-collapse: collapse; }
+.data-table th { font-size: 10px; font-weight: 600; letter-spacing: 0.1em; color: #888; text-align: left; padding: 8px 12px; border-bottom: 1px solid rgba(255, 255, 255, 0.08); text-transform: uppercase; }
+.data-table td { font-size: 13px; padding: 10px 12px; border-bottom: 1px solid rgba(255, 255, 255, 0.04); }
+.data-table tr:hover td { background: rgba(255, 107, 53, 0.04); }
+.health-bar { width: 60px; height: 4px; background: rgba(255, 255, 255, 0.08); border-radius: 2px; display: inline-block; vertical-align: middle; margin-right: 8px; }
+.health-fill { height: 100%; border-radius: 2px; transition: width 0.3s ease; }
+.mono-text { font-family: 'Roboto Mono', monospace; }
+.live-dot { width: 8px; height: 8px; border-radius: 50%; background: #00ffaa; display: inline-block; animation: pulse 2s ease-in-out infinite; }
+@keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
+.feed-list { display: flex; flex-direction: column; }
+.feed-item { display: flex; align-items: center; gap: 12px; padding: 10px 12px; border-bottom: 1px solid rgba(255, 255, 255, 0.04); transition: background 0.15s ease; }
+.feed-item:hover { background: rgba(255, 107, 53, 0.04); }
+.feed-time { font-size: 11px; color: #888; min-width: 65px; }
+.feed-source { font-size: 10px; font-weight: 700; letter-spacing: 0.1em; min-width: 90px; }
+.feed-msg { font-size: 12px; color: #a0a0a0; flex: 1; }
+.view-footer { text-align: center; font-family: 'Roboto Mono', monospace; font-size: 10px; color: #555; letter-spacing: 0.15em; padding: 32px 0 16px; border-top: 1px solid rgba(255, 255, 255, 0.05); margin-top: 32px; }
+</style>

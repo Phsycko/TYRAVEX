@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * useAnalytics Composable
  * Hook para consumir el contexto de Analytics

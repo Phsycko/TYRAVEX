@@ -97,14 +97,16 @@ function generateAgeDistribution(seed: number): DemographicAge[] {
 
     // Adjust to ensure sum is exactly 100
     const diff = 100 - percentages.reduce((a, b) => a + b, 0)
-    percentages[0] += diff
+    if (percentages.length > 0) {
+        percentages[0]! += diff
+    }
 
     const groups = ['18-24', '25-34', '35-44', '45-54', '55-64', '65+']
 
     return groups.map((grupo, i) => ({
         grupo,
-        porcentaje: percentages[i],
-        total: Math.round((percentages[i] / 100) * basePopulation)
+        porcentaje: percentages[i] ?? 0,
+        total: Math.round(((percentages[i] ?? 0) / 100) * basePopulation)
     }))
 }
 
@@ -129,14 +131,16 @@ function generateNSEDistribution(seed: number): DemographicNSE[] {
 
     // Adjust to ensure sum is exactly 100
     const diff = 100 - percentages.reduce((a, b) => a + b, 0)
-    percentages[2] += diff
+    if (percentages.length > 2) {
+        percentages[2]! += diff
+    }
 
     return [
-        { nivel: 'A/B (Alto)', porcentaje: percentages[0], color: '#10b981' },
-        { nivel: 'C+ (Medio Alto)', porcentaje: percentages[1], color: '#3b82f6' },
-        { nivel: 'C (Medio)', porcentaje: percentages[2], color: '#6366f1' },
-        { nivel: 'D+ (Medio Bajo)', porcentaje: percentages[3], color: '#f59e0b' },
-        { nivel: 'D/E (Bajo)', porcentaje: percentages[4], color: '#ef4444' }
+        { nivel: 'A/B (Alto)', porcentaje: percentages[0] ?? 0, color: '#10b981' },
+        { nivel: 'C+ (Medio Alto)', porcentaje: percentages[1] ?? 0, color: '#3b82f6' },
+        { nivel: 'C (Medio)', porcentaje: percentages[2] ?? 0, color: '#6366f1' },
+        { nivel: 'D+ (Medio Bajo)', porcentaje: percentages[3] ?? 0, color: '#f59e0b' },
+        { nivel: 'D/E (Bajo)', porcentaje: percentages[4] ?? 0, color: '#ef4444' }
     ]
 }
 

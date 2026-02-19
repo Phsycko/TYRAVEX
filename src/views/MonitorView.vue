@@ -1,356 +1,224 @@
-<script setup lang="ts">
-import { ref, computed } from 'vue'
-import Card from '@/components/common/Card.vue'
-import Badge from '@/components/common/Badge.vue'
-import LiveIndicator from '@/components/common/LiveIndicator.vue'
-import SentimentGauge from '@/components/common/SentimentGauge.vue'
-import { monitorData } from '@/data/mockData'
-
-const activeTab = ref('dashboard')
-const selectedSource = ref('all')
-
-const tabs = [
-  { id: 'dashboard', label: 'Dashboard' },
-  { id: 'feed', label: 'Feed en Vivo' },
-  { id: 'alertas', label: 'Alertas' },
-  { id: 'trending', label: 'Trending' }
-]
-
-const sources = [
-  { id: 'all', label: 'Todas' },
-  { id: 'twitter', label: 'Twitter' },
-  { id: 'facebook', label: 'Facebook' },
-  { id: 'instagram', label: 'Instagram' },
-  { id: 'tiktok', label: 'TikTok' }
-]
-
-const sentimiento = computed(() => monitorData.sentimiento)
-const trending = computed(() => monitorData.trending)
-const menciones = computed(() => {
-  if (selectedSource.value === 'all') return monitorData.menciones
-  return monitorData.menciones.filter(m => m.fuente.toLowerCase() === selectedSource.value)
-})
-const alertas = computed(() => monitorData.alertas)
-const shareOfVoice = computed(() => monitorData.shareOfVoice)
-const sentimientoPorDia = computed(() => monitorData.sentimientoPorDia)
-
-const getSentimentBg = (sentiment: string) => {
-  switch (sentiment) {
-    case 'positive': return 'bg-tyravex-success/10 border-tyravex-success/30'
-    case 'negative': return 'bg-tyravex-danger/10 border-tyravex-danger/30'
-    default: return 'bg-tyravex-gray-500/10 border-tyravex-gray-500/30'
-  }
-}
-
-const getSourceIcon = (source: string) => {
-  switch (source.toLowerCase()) {
-    case 'twitter': return 'M23 3a10.9 10.9 0 01-3.14 1.53 4.48 4.48 0 00-7.86 3v1A10.66 10.66 0 013 4s-4 9 5 13a11.64 11.64 0 01-7 2c9 5 20 0 20-11.5a4.5 4.5 0 00-.08-.83A7.72 7.72 0 0023 3z'
-    case 'facebook': return 'M18 2h-3a5 5 0 00-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 011-1h3z'
-    case 'instagram': return 'M16 11.37A4 4 0 1112.63 8 4 4 0 0116 11.37zm1.5-4.87h.01M6.5 19.5h11a3 3 0 003-3v-11a3 3 0 00-3-3h-11a3 3 0 00-3 3v11a3 3 0 003 3z'
-    case 'tiktok': return 'M9 12a4 4 0 104 4V4a5 5 0 005 5'
-    default: return 'M21 12a9 9 0 11-18 0 9 9 0 0118 0z'
-  }
-}
-
-const formatNumber = (num: number): string => {
-  if (num >= 1000000) return (num / 1000000).toFixed(1) + 'M'
-  if (num >= 1000) return (num / 1000).toFixed(1) + 'K'
-  return num.toString()
-}
-
-const getAlertTypeColor = (tipo: string) => {
-  switch (tipo) {
-    case 'critical': return 'bg-tyravex-danger/20 border-tyravex-danger/30 text-tyravex-danger'
-    case 'warning': return 'bg-tyravex-warning/20 border-tyravex-warning/30 text-tyravex-warning'
-    default: return 'bg-tyravex-primary/20 border-tyravex-primary/30 text-tyravex-gray-200'
-  }
-}
-</script>
-
 <template>
-  <div class="space-y-6 animate-fade-in">
-    <!-- Header -->
-    <div class="flex items-center justify-between">
-      <div>
-        <h1 class="text-2xl font-bold text-tyravex-text-primary">Monitor</h1>
-        <p class="text-tyravex-text-muted mt-1">Vigilancia en tiempo real de medios y redes sociales</p>
-      </div>
-      <LiveIndicator />
-    </div>
-
-    <!-- Tabs -->
-    <div class="tabs">
-      <button
-        v-for="tab in tabs"
-        :key="tab.id"
-        class="tab"
-        :class="{ active: activeTab === tab.id }"
-        @click="activeTab = tab.id"
-      >
-        {{ tab.label }}
-        <Badge v-if="tab.id === 'alertas'" variant="danger" class="ml-2">{{ alertas.length }}</Badge>
-      </button>
-    </div>
-
-    <!-- Tab Content: Dashboard -->
-    <div v-if="activeTab === 'dashboard'" class="space-y-6">
-      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <!-- Medidor de sentimiento -->
-        <Card title="Sentimiento General" class="flex flex-col items-center">
-          <SentimentGauge :value="sentimiento.score" size="lg" />
-          <div class="grid grid-cols-3 gap-4 w-full mt-6 pt-4 border-t border-tyravex-border">
-            <div class="text-center">
-              <div class="text-lg font-bold font-mono text-tyravex-success">{{ formatNumber(sentimiento.positivas) }}</div>
-              <div class="text-xs text-tyravex-text-muted">Positivas</div>
-            </div>
-            <div class="text-center">
-              <div class="text-lg font-bold font-mono text-tyravex-gray-400">{{ formatNumber(sentimiento.neutrales) }}</div>
-              <div class="text-xs text-tyravex-text-muted">Neutrales</div>
-            </div>
-            <div class="text-center">
-              <div class="text-lg font-bold font-mono text-tyravex-danger">{{ formatNumber(sentimiento.negativas) }}</div>
-              <div class="text-xs text-tyravex-text-muted">Negativas</div>
-            </div>
-          </div>
-        </Card>
-
-        <!-- Grafico de sentimiento por dia -->
-        <Card title="Sentimiento Ultimos 7 Dias" class="lg:col-span-2">
-          <div class="h-48 flex items-end justify-between gap-2">
-            <div
-              v-for="dia in sentimientoPorDia"
-              :key="dia.dia"
-              class="flex-1 flex flex-col items-center"
-            >
-              <div class="w-full flex flex-col gap-0.5" style="height: 160px;">
-                <div
-                  class="w-full bg-tyravex-success rounded-t flex-shrink-0"
-                  :style="{ height: `${(dia.positivo / 7)}px` }"
-                />
-                <div
-                  class="w-full bg-tyravex-gray-500 flex-shrink-0"
-                  :style="{ height: `${(dia.neutral / 3)}px` }"
-                />
-                <div
-                  class="w-full bg-tyravex-danger rounded-b flex-shrink-0"
-                  :style="{ height: `${(dia.negativo / 2)}px` }"
-                />
-              </div>
-              <span class="text-xs text-tyravex-text-muted mt-2">{{ dia.dia }}</span>
-            </div>
-          </div>
-          <div class="flex items-center justify-center gap-6 mt-4 pt-4 border-t border-tyravex-border">
-            <div class="flex items-center gap-2">
-              <div class="w-3 h-3 rounded bg-tyravex-success" />
-              <span class="text-sm text-tyravex-text-muted">Positivas</span>
-            </div>
-            <div class="flex items-center gap-2">
-              <div class="w-3 h-3 rounded bg-tyravex-gray-500" />
-              <span class="text-sm text-tyravex-text-muted">Neutrales</span>
-            </div>
-            <div class="flex items-center gap-2">
-              <div class="w-3 h-3 rounded bg-tyravex-danger" />
-              <span class="text-sm text-tyravex-text-muted">Negativas</span>
-            </div>
-          </div>
-        </Card>
-      </div>
-
-      <!-- Share of Voice y Trending -->
-      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <!-- Share of Voice -->
-        <Card title="Share of Voice">
-          <div class="space-y-4">
-            <div
-              v-for="item in shareOfVoice"
-              :key="item.candidato"
-              class="flex items-center gap-4"
-            >
-              <div class="w-28 text-sm text-tyravex-text-secondary truncate">{{ item.candidato }}</div>
-              <div class="flex-1">
-                <div class="h-4 bg-tyravex-bg-tertiary rounded-full overflow-hidden">
-                  <div
-                    class="h-full rounded-full transition-all duration-500"
-                    :style="{ width: `${item.porcentaje}%`, backgroundColor: item.color }"
-                  />
-                </div>
-              </div>
-              <div class="w-12 text-right text-sm font-mono font-medium" :style="{ color: item.color }">
-                {{ item.porcentaje }}%
-              </div>
-            </div>
-          </div>
-        </Card>
-
-        <!-- Trending Topics -->
-        <Card title="Trending Topics">
-          <template #actions>
-            <LiveIndicator size="sm" text="LIVE" />
-          </template>
-
-          <div class="space-y-3">
-            <div
-              v-for="(topic, index) in trending"
-              :key="topic.id"
-              class="flex items-center gap-3 p-2 rounded-lg hover:bg-tyravex-bg-tertiary/50 cursor-pointer transition-colors"
-            >
-              <span class="w-6 h-6 rounded-full bg-tyravex-bg-tertiary flex items-center justify-center text-xs font-bold text-tyravex-text-muted">
-                {{ index + 1 }}
-              </span>
-              <div class="flex-1 min-w-0">
-                <p class="text-sm font-medium text-tyravex-text-primary truncate">{{ topic.tema }}</p>
-                <p class="text-xs text-tyravex-text-muted">{{ formatNumber(topic.menciones) }} menciones</p>
-              </div>
-              <Badge
-                :variant="topic.sentimiento === 'positive' ? 'success' : topic.sentimiento === 'negative' ? 'danger' : 'neutral'"
-                dot
-              >
-                {{ topic.cambio > 0 ? '+' : '' }}{{ topic.cambio }}%
-              </Badge>
-            </div>
-          </div>
-        </Card>
-      </div>
-    </div>
-
-    <!-- Tab Content: Feed -->
-    <div v-if="activeTab === 'feed'" class="space-y-4">
-      <!-- Filtros -->
-      <Card>
-        <div class="flex items-center gap-4 flex-wrap">
-          <div class="flex items-center gap-2">
-            <span class="text-sm text-tyravex-text-muted">Fuente:</span>
-            <div class="flex gap-1">
-              <button
-                v-for="source in sources"
-                :key="source.id"
-                class="px-3 py-1.5 text-xs rounded-full transition-colors"
-                :class="selectedSource === source.id ? 'bg-tyravex-secondary text-white' : 'bg-tyravex-bg-tertiary text-tyravex-text-muted hover:text-tyravex-text-primary'"
-                @click="selectedSource = source.id"
-              >
-                {{ source.label }}
-              </button>
-            </div>
-          </div>
-          <div class="flex items-center gap-2 ml-auto">
-            <input type="text" placeholder="Buscar menciones..." class="input input-sm w-64" />
-          </div>
+  <div class="monitor-view">
+    <header class="view-header">
+      <div class="header-top">
+        <div>
+          <div class="section-tag">MONITOR</div>
+          <h1 class="section-title">REAL-TIME SURVEILLANCE</h1>
+          <p class="section-subtitle">Media and social network monitoring — 24/7 coverage active</p>
         </div>
-      </Card>
+        <div class="live-badge"><span class="live-dot"></span> LIVE FEED ACTIVE</div>
+      </div>
+    </header>
 
-      <!-- Feed de menciones -->
-      <div class="space-y-3">
-        <div
-          v-for="mencion in menciones"
-          :key="mencion.id"
-          class="card border"
-          :class="getSentimentBg(mencion.sentimiento)"
-        >
-          <div class="flex items-start gap-4">
-            <!-- Icon de fuente -->
-            <div class="w-10 h-10 rounded-full bg-tyravex-bg-tertiary flex items-center justify-center flex-shrink-0">
-              <svg class="w-5 h-5 text-tyravex-text-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" :d="getSourceIcon(mencion.fuente)" />
-              </svg>
-            </div>
+    <div class="kpi-row">
+      <div class="kpi-card" v-for="kpi in kpis" :key="kpi.label">
+        <div class="kpi-label">{{ kpi.label }}</div>
+        <div class="kpi-value" :style="{ color: kpi.color }">{{ kpi.value }}</div>
+        <div class="kpi-sub" :style="{ color: kpi.subColor }">{{ kpi.sub }}</div>
+      </div>
+    </div>
 
-            <div class="flex-1 min-w-0">
-              <div class="flex items-center gap-2 mb-1">
-                <span class="font-medium text-tyravex-text-primary">{{ mencion.usuario }}</span>
-                <Badge :variant="mencion.sentimiento === 'positive' ? 'success' : mencion.sentimiento === 'negative' ? 'danger' : 'neutral'">
-                  {{ mencion.fuente }}
-                </Badge>
-              </div>
-              <p class="text-sm text-tyravex-text-secondary">{{ mencion.contenido }}</p>
-              <div class="flex items-center gap-4 mt-2">
-                <span class="text-xs text-tyravex-text-muted">{{ mencion.tiempo }}</span>
-                <span class="text-xs text-tyravex-text-muted">Alcance: {{ formatNumber(mencion.alcance) }}</span>
-              </div>
-            </div>
+    <div class="grid-2col">
+      <div class="card-panel">
+        <div class="card-header">
+          <span class="card-title">MENTION VOLUME (LAST 7 DAYS)</span>
+        </div>
+        <v-chart :option="mentionChart" style="height: 300px;" autoresize />
+      </div>
+      <div class="card-panel">
+        <div class="card-header">
+          <span class="card-title">SOURCE DISTRIBUTION</span>
+        </div>
+        <v-chart :option="sourceChart" style="height: 300px;" autoresize />
+      </div>
+    </div>
 
-            <div
-              class="w-3 h-3 rounded-full flex-shrink-0"
-              :class="mencion.sentimiento === 'positive' ? 'bg-tyravex-success' : mencion.sentimiento === 'negative' ? 'bg-tyravex-danger' : 'bg-tyravex-gray-500'"
-            />
+    <div class="card-panel mt-16">
+      <div class="card-header">
+        <span class="card-title">TRENDING TOPICS</span>
+        <span class="badge badge-warning">{{ trendingTopics.length }} ACTIVE</span>
+      </div>
+      <div class="trending-grid">
+        <div class="trending-item" v-for="topic in trendingTopics" :key="topic.tag">
+          <div class="trending-rank" :style="{ color: topic.color }">#{{ topic.rank }}</div>
+          <div class="trending-info">
+            <div class="trending-tag">{{ topic.tag }}</div>
+            <div class="trending-meta">{{ topic.mentions }} mentions &middot; {{ topic.sentiment }}</div>
           </div>
+          <div class="trending-delta" :class="topic.direction">{{ topic.direction === 'up' ? '▲' : '▼' }} {{ topic.change }}</div>
         </div>
       </div>
     </div>
 
-    <!-- Tab Content: Alertas -->
-    <div v-if="activeTab === 'alertas'" class="space-y-4">
-      <div
-        v-for="alerta in alertas"
-        :key="alerta.id"
-        class="card border"
-        :class="getAlertTypeColor(alerta.tipo)"
-      >
-        <div class="flex items-start gap-4">
-          <div class="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0"
-            :class="alerta.tipo === 'critical' ? 'bg-tyravex-danger/20' : alerta.tipo === 'warning' ? 'bg-tyravex-warning/20' : 'bg-tyravex-primary/20'"
-          >
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
-              />
-            </svg>
-          </div>
+    <div class="card-panel mt-16">
+      <div class="card-header">
+        <span class="card-title">LIVE MENTION FEED</span>
+      </div>
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>TIME</th>
+            <th>SOURCE</th>
+            <th>AUTHOR</th>
+            <th>CONTENT</th>
+            <th>SENTIMENT</th>
+            <th>REACH</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="mention in mentions" :key="mention.id">
+            <td class="mono-text">{{ mention.time }}</td>
+            <td><span class="badge badge-info">{{ mention.source }}</span></td>
+            <td style="font-weight: 600;">{{ mention.author }}</td>
+            <td style="max-width: 320px; font-size: 12px; color: #a0a0a0;">{{ mention.content }}</td>
+            <td><span class="badge" :class="'badge-' + mention.sentimentType">{{ mention.sentiment }}</span></td>
+            <td class="mono-text">{{ mention.reach }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
 
-          <div class="flex-1">
-            <div class="flex items-center gap-2 mb-1">
-              <h3 class="font-semibold">{{ alerta.titulo }}</h3>
-              <Badge
-                :variant="alerta.tipo === 'critical' ? 'danger' : alerta.tipo === 'warning' ? 'warning' : 'primary'"
-              >
-                {{ alerta.tipo === 'critical' ? 'Critico' : alerta.tipo === 'warning' ? 'Advertencia' : 'Info' }}
-              </Badge>
-            </div>
-            <p class="text-sm opacity-80">{{ alerta.descripcion }}</p>
-            <div class="flex items-center gap-4 mt-2 text-xs opacity-60">
-              <span>Fuente: {{ alerta.fuente }}</span>
-              <span>{{ alerta.tiempo }}</span>
-              <span>Alcance: {{ formatNumber(alerta.alcance) }}</span>
-            </div>
+    <div class="card-panel mt-16">
+      <div class="card-header">
+        <span class="card-title">ACTIVE ALERTS</span>
+        <span class="badge badge-danger">{{ alerts.length }} ALERTS</span>
+      </div>
+      <div class="alerts-list">
+        <div class="alert-item" v-for="alert in alerts" :key="alert.id" :class="'alert-' + alert.severity">
+          <div class="alert-severity">{{ alert.severity.toUpperCase() }}</div>
+          <div class="alert-content">
+            <div class="alert-title">{{ alert.title }}</div>
+            <div class="alert-desc">{{ alert.description }}</div>
           </div>
-
-          <div class="flex items-center gap-2">
-            <button class="btn-outline btn-sm">Ver detalles</button>
-            <button class="btn-sm bg-white/10 hover:bg-white/20">Ignorar</button>
-          </div>
+          <div class="alert-time mono-text">{{ alert.time }}</div>
         </div>
       </div>
     </div>
 
-    <!-- Tab Content: Trending -->
-    <div v-if="activeTab === 'trending'" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-      <Card
-        v-for="topic in trending"
-        :key="topic.id"
-      >
-        <div class="flex items-start justify-between mb-3">
-          <Badge
-            :variant="topic.sentimiento === 'positive' ? 'success' : topic.sentimiento === 'negative' ? 'danger' : 'neutral'"
-            dot
-          >
-            {{ topic.sentimiento === 'positive' ? 'Positivo' : topic.sentimiento === 'negative' ? 'Negativo' : 'Neutral' }}
-          </Badge>
-          <span
-            class="text-sm font-medium"
-            :class="topic.cambio > 0 ? 'text-tyravex-success' : 'text-tyravex-danger'"
-          >
-            {{ topic.cambio > 0 ? '+' : '' }}{{ topic.cambio }}%
-          </span>
-        </div>
-
-        <h3 class="text-lg font-semibold text-tyravex-text-primary mb-2">{{ topic.tema }}</h3>
-        <p class="text-2xl font-bold font-mono text-tyravex-text-primary">{{ formatNumber(topic.menciones) }}</p>
-        <p class="text-sm text-tyravex-text-muted">menciones</p>
-
-        <button class="btn-outline w-full mt-4">Ver menciones</button>
-      </Card>
-    </div>
+    <footer class="view-footer">TYRAVEX INTELLIGENCE SYSTEM // CONFIDENTIAL // 2026</footer>
   </div>
 </template>
+
+<script setup lang="ts">
+import { use } from 'echarts/core'
+import { CanvasRenderer } from 'echarts/renderers'
+import { BarChart, PieChart } from 'echarts/charts'
+import { GridComponent, TooltipComponent, LegendComponent } from 'echarts/components'
+import VChart from 'vue-echarts'
+
+use([CanvasRenderer, BarChart, PieChart, GridComponent, TooltipComponent, LegendComponent])
+
+const kpis = [
+  { label: 'MENTIONS TODAY', value: '18,429', sub: '▲ +2,341 vs yesterday', color: '#ff6b35', subColor: '#00ffaa' },
+  { label: 'SENTIMENT INDEX', value: '+58', sub: 'Trending positive', color: '#00ffaa', subColor: '#00ffaa' },
+  { label: 'ACTIVE SOURCES', value: '2,847', sub: '6 platforms tracked', color: '#4A90E2', subColor: '#a0a0a0' },
+  { label: 'CRITICAL ALERTS', value: '3', sub: '2 pending review', color: '#ff4444', subColor: '#ffcc00' },
+]
+
+const mentionChart = {
+  backgroundColor: 'transparent',
+  tooltip: { trigger: 'axis', backgroundColor: 'rgba(20,22,28,0.95)', borderColor: 'rgba(255,255,255,0.08)', textStyle: { color: '#e0e0e0', fontFamily: 'Montserrat' } },
+  grid: { left: 50, right: 20, top: 10, bottom: 30 },
+  xAxis: { type: 'category', data: ['04.FEB', '05.FEB', '06.FEB', '07.FEB', '08.FEB', '09.FEB', '10.FEB'], axisLine: { lineStyle: { color: 'rgba(255,255,255,0.08)' } }, axisLabel: { color: '#888', fontFamily: 'Roboto Mono', fontSize: 10 } },
+  yAxis: { type: 'value', axisLine: { show: false }, splitLine: { lineStyle: { color: 'rgba(255,255,255,0.05)' } }, axisLabel: { color: '#888', fontFamily: 'Roboto Mono', fontSize: 10 } },
+  series: [{ type: 'bar', data: [14200, 15800, 13900, 16400, 17200, 16800, 18429], itemStyle: { color: '#ff6b35' }, barWidth: '50%' }],
+}
+
+const sourceChart = {
+  backgroundColor: 'transparent',
+  tooltip: { trigger: 'item', backgroundColor: 'rgba(20,22,28,0.95)', borderColor: 'rgba(255,255,255,0.08)', textStyle: { color: '#e0e0e0', fontFamily: 'Montserrat' } },
+  legend: { bottom: 0, textStyle: { color: '#a0a0a0', fontFamily: 'Montserrat', fontSize: 10 } },
+  series: [{
+    type: 'pie', radius: ['35%', '65%'], center: ['50%', '42%'],
+    label: { show: false },
+    data: [
+      { value: 42, name: 'Twitter/X', itemStyle: { color: '#4A90E2' } },
+      { value: 24, name: 'Facebook', itemStyle: { color: '#ff6b35' } },
+      { value: 18, name: 'Instagram', itemStyle: { color: '#00ffaa' } },
+      { value: 10, name: 'TikTok', itemStyle: { color: '#ffcc00' } },
+      { value: 6, name: 'News', itemStyle: { color: '#888' } },
+    ],
+  }],
+}
+
+const trendingTopics = [
+  { rank: 1, tag: '#DebatePresidencial2026', mentions: '12.4K', sentiment: 'Mixed', change: '340%', direction: 'up', color: '#ff6b35' },
+  { rank: 2, tag: '#ReformaEducativa', mentions: '8.2K', sentiment: 'Positive', change: '120%', direction: 'up', color: '#00ffaa' },
+  { rank: 3, tag: '#Seguridad2026', mentions: '6.8K', sentiment: 'Negative', change: '85%', direction: 'up', color: '#ff4444' },
+  { rank: 4, tag: '#EconomíaMX', mentions: '5.1K', sentiment: 'Neutral', change: '45%', direction: 'up', color: '#4A90E2' },
+  { rank: 5, tag: '#CandidatoX', mentions: '4.3K', sentiment: 'Positive', change: '12%', direction: 'down', color: '#ffcc00' },
+]
+
+const mentions = [
+  { id: 1, time: '23:42:18', source: 'TWITTER', author: '@politica_mx', content: 'El debate de esta noche mostró claras diferencias en política económica...', sentiment: 'NEUTRAL', sentimentType: 'info', reach: '45.2K' },
+  { id: 2, time: '23:41:05', source: 'FACEBOOK', author: 'Noticias MX', content: 'ÚLTIMA HORA: Candidato anuncia plan de infraestructura para el norte...', sentiment: 'POSITIVE', sentimentType: 'success', reach: '128K' },
+  { id: 3, time: '23:39:42', source: 'TWITTER', author: '@periodista_mz', content: 'La propuesta de reforma educativa genera polémica en redes sociales...', sentiment: 'MIXED', sentimentType: 'warning', reach: '23.1K' },
+  { id: 4, time: '23:38:19', source: 'NEWS', author: 'El Universal', content: 'Encuestas muestran empate técnico en 3 estados clave del norte...', sentiment: 'NEUTRAL', sentimentType: 'info', reach: '890K' },
+  { id: 5, time: '23:36:55', source: 'INSTAGRAM', author: '@juventud_mx', content: 'Video del candidato en evento universitario alcanza 500K vistas...', sentiment: 'POSITIVE', sentimentType: 'success', reach: '502K' },
+  { id: 6, time: '23:35:31', source: 'TIKTOK', author: '@eleccion_viral', content: 'Clip del debate se viraliza con 2M reproducciones en 2 horas...', sentiment: 'POSITIVE', sentimentType: 'success', reach: '2.1M' },
+  { id: 7, time: '23:33:12', source: 'TWITTER', author: '@oposicion_mx', content: 'Críticas al plan de seguridad propuesto en el debate nocturno...', sentiment: 'NEGATIVE', sentimentType: 'danger', reach: '67K' },
+  { id: 8, time: '23:31:48', source: 'NEWS', author: 'Reforma', content: 'Análisis de expertos sobre las propuestas económicas presentadas...', sentiment: 'NEUTRAL', sentimentType: 'info', reach: '445K' },
+]
+
+const alerts = [
+  { id: 1, severity: 'danger', title: 'Coordinated Bot Network Detected', description: 'Cluster of 847 accounts amplifying negative narratives about education reform', time: '23:38' },
+  { id: 2, severity: 'warning', title: 'Unusual Sentiment Shift in Chihuahua', description: 'Sentiment dropped 15 points in last 2 hours — investigating root cause', time: '23:22' },
+  { id: 3, severity: 'warning', title: 'Viral Misinformation Thread', description: 'False claim about candidate policy gaining traction on Twitter/X — 12K retweets', time: '22:55' },
+]
+</script>
+
+<style scoped>
+.monitor-view { font-family: 'Montserrat', sans-serif; color: #e0e0e0; }
+.view-header { margin-bottom: 24px; }
+.header-top { display: flex; justify-content: space-between; align-items: flex-start; }
+.section-tag { display: inline-block; font-family: 'Oswald', sans-serif; font-size: 11px; font-weight: 600; letter-spacing: 0.15em; color: #ff6b35; padding: 4px 12px; border: 1px solid rgba(255, 107, 53, 0.3); border-radius: 2px; margin-bottom: 8px; text-transform: uppercase; }
+.section-title { font-family: 'Oswald', sans-serif; font-size: 28px; font-weight: 600; color: #e0e0e0; letter-spacing: 0.05em; margin: 0; }
+.section-subtitle { font-size: 13px; color: #888; margin-top: 4px; }
+.live-badge { display: flex; align-items: center; gap: 8px; font-family: 'Roboto Mono', monospace; font-size: 11px; color: #00ffaa; background: rgba(0, 255, 170, 0.1); padding: 6px 14px; border: 1px solid rgba(0, 255, 170, 0.2); border-radius: 2px; }
+.live-dot { width: 8px; height: 8px; border-radius: 50%; background: #00ffaa; display: inline-block; animation: pulse 2s ease-in-out infinite; }
+@keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
+.kpi-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 16px; }
+.kpi-card { background: rgba(20, 22, 28, 0.7); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 4px; padding: 16px; text-align: center; }
+.kpi-label { font-size: 10px; font-weight: 600; letter-spacing: 0.1em; color: #888; text-transform: uppercase; margin-bottom: 8px; }
+.kpi-value { font-family: 'Oswald', sans-serif; font-size: 32px; font-weight: 600; line-height: 1; }
+.kpi-sub { font-family: 'Roboto Mono', monospace; font-size: 11px; margin-top: 6px; }
+.grid-2col { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.card-panel { background: rgba(20, 22, 28, 0.7); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 4px; padding: 20px; }
+.mt-16 { margin-top: 16px; }
+.card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+.card-title { font-family: 'Oswald', sans-serif; font-size: 13px; font-weight: 500; letter-spacing: 0.1em; color: #a0a0a0; text-transform: uppercase; }
+.badge { font-family: 'Roboto Mono', monospace; font-size: 10px; font-weight: 600; padding: 3px 8px; border-radius: 2px; letter-spacing: 0.05em; text-transform: uppercase; }
+.badge-success { background: rgba(0, 255, 170, 0.15); color: #00ffaa; }
+.badge-warning { background: rgba(255, 204, 0, 0.15); color: #ffcc00; }
+.badge-danger { background: rgba(255, 68, 68, 0.15); color: #ff4444; }
+.badge-info { background: rgba(74, 144, 226, 0.15); color: #4A90E2; }
+.trending-grid { display: flex; flex-direction: column; }
+.trending-item { display: flex; align-items: center; gap: 16px; padding: 12px; border-bottom: 1px solid rgba(255, 255, 255, 0.04); transition: background 0.15s ease; }
+.trending-item:hover { background: rgba(255, 107, 53, 0.04); }
+.trending-rank { font-family: 'Oswald', sans-serif; font-size: 20px; font-weight: 600; min-width: 40px; }
+.trending-info { flex: 1; }
+.trending-tag { font-weight: 600; font-size: 14px; color: #e0e0e0; }
+.trending-meta { font-size: 11px; color: #888; margin-top: 2px; }
+.trending-delta { font-family: 'Roboto Mono', monospace; font-size: 12px; font-weight: 600; }
+.trending-delta.up { color: #00ffaa; }
+.trending-delta.down { color: #ff4444; }
+.data-table { width: 100%; border-collapse: collapse; }
+.data-table th { font-size: 10px; font-weight: 600; letter-spacing: 0.1em; color: #888; text-align: left; padding: 8px 12px; border-bottom: 1px solid rgba(255, 255, 255, 0.08); text-transform: uppercase; }
+.data-table td { font-size: 13px; padding: 10px 12px; border-bottom: 1px solid rgba(255, 255, 255, 0.04); }
+.data-table tr:hover td { background: rgba(255, 107, 53, 0.04); }
+.mono-text { font-family: 'Roboto Mono', monospace; }
+.alerts-list { display: flex; flex-direction: column; gap: 8px; }
+.alert-item { display: flex; align-items: center; gap: 16px; padding: 14px 16px; border-radius: 4px; border: 1px solid rgba(255, 255, 255, 0.06); transition: background 0.15s ease; }
+.alert-item:hover { background: rgba(255, 255, 255, 0.02); }
+.alert-danger { border-left: 3px solid #ff4444; background: rgba(255, 68, 68, 0.05); }
+.alert-warning { border-left: 3px solid #ffcc00; background: rgba(255, 204, 0, 0.05); }
+.alert-severity { font-family: 'Roboto Mono', monospace; font-size: 10px; font-weight: 700; letter-spacing: 0.1em; min-width: 60px; text-transform: uppercase; }
+.alert-danger .alert-severity { color: #ff4444; }
+.alert-warning .alert-severity { color: #ffcc00; }
+.alert-content { flex: 1; }
+.alert-title { font-weight: 600; font-size: 13px; color: #e0e0e0; }
+.alert-desc { font-size: 12px; color: #888; margin-top: 2px; }
+.alert-time { font-size: 11px; color: #888; }
+.view-footer { text-align: center; font-family: 'Roboto Mono', monospace; font-size: 10px; color: #555; letter-spacing: 0.15em; padding: 32px 0 16px; border-top: 1px solid rgba(255, 255, 255, 0.05); margin-top: 32px; }
+</style>

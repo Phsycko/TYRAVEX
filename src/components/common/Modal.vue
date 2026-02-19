@@ -1,101 +1,49 @@
 <script setup lang="ts">
-import { watch } from 'vue'
+import { Dialog, DialogPanel, DialogTitle, TransitionChild, TransitionRoot } from '@headlessui/vue'
+import { XMarkIcon } from '@heroicons/vue/24/outline'
 
-interface Props {
+defineProps<{
   show: boolean
   title?: string
-  size?: 'sm' | 'md' | 'lg' | 'xl'
-  closable?: boolean
-}
-
-const props = withDefaults(defineProps<Props>(), {
-  size: 'md',
-  closable: true
-})
-
-const emit = defineEmits<{
-  close: []
+  maxWidth?: 'sm' | 'md' | 'lg' | 'xl' | '2xl'
 }>()
 
-const sizeClasses = {
-  sm: 'max-w-sm',
-  md: 'max-w-lg',
-  lg: 'max-w-2xl',
-  xl: 'max-w-4xl'
-}
-
-const close = () => {
-  if (props.closable) {
-    emit('close')
-  }
-}
-
-watch(() => props.show, (val) => {
-  if (val) {
-    document.body.style.overflow = 'hidden'
-  } else {
-    document.body.style.overflow = ''
-  }
-})
+const emit = defineEmits(['close'])
 </script>
 
 <template>
-  <Teleport to="body">
-    <Transition name="modal">
-      <div v-if="show" class="fixed inset-0 z-50 flex items-center justify-center p-4">
-        <div class="modal-backdrop" @click="close" />
+  <TransitionRoot as="template" :show="show">
+    <Dialog as="div" class="relative z-50" @close="emit('close')">
+      <TransitionChild as="template" enter="ease-out duration-300" enter-from="opacity-0" enter-to="opacity-100" leave="ease-in duration-200" leave-from="opacity-100" leave-to="opacity-0">
+        <div class="fixed inset-0 bg-black/70 backdrop-blur-sm transition-opacity" />
+      </TransitionChild>
 
-        <div
-          class="relative w-full bg-tyravex-bg-secondary border border-tyravex-border rounded-card shadow-2xl z-10"
-          :class="sizeClasses[size]"
-        >
-          <div v-if="title || closable" class="modal-header">
-            <h3 v-if="title" class="text-lg font-semibold text-tyravex-text-primary">
-              {{ title }}
-            </h3>
-            <button
-              v-if="closable"
-              class="p-1 rounded-lg text-tyravex-text-muted hover:text-tyravex-text-primary hover:bg-tyravex-bg-tertiary transition-colors ml-auto"
-              @click="close"
-            >
-              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-              </svg>
-            </button>
-          </div>
+      <div class="fixed inset-0 z-10 overflow-y-auto">
+        <div class="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
+          <TransitionChild as="template" enter="ease-out duration-300" enter-from="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95" enter-to="opacity-100 translate-y-0 sm:scale-100" leave="ease-in duration-200" leave-from="opacity-100 translate-y-0 sm:scale-100" leave-to="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95">
+            <DialogPanel class="relative transform overflow-hidden rounded-lg bg-bg-secondary border border-border-medium text-left shadow-xl transition-all sm:my-8 sm:w-full" :class="[maxWidth ? `max-w-${maxWidth}` : 'max-w-lg']">
+              
+              <!-- Header -->
+              <div v-if="title" class="flex items-center justify-between px-4 py-3 border-b border-border-medium bg-bg-tertiary/50">
+                <DialogTitle as="h3" class="text-base font-semibold leading-6 text-text-primary">{{ title }}</DialogTitle>
+                <button @click="emit('close')" type="button" class="rounded-md bg-transparent text-text-tertiary hover:text-text-primary focus:outline-none">
+                  <XMarkIcon class="h-5 w-5" />
+                </button>
+              </div>
 
-          <div class="modal-body custom-scrollbar max-h-[70vh] overflow-y-auto">
-            <slot />
-          </div>
+              <!-- Content -->
+              <div class="px-4 py-5 sm:p-6">
+                <slot />
+              </div>
 
-          <div v-if="$slots.footer" class="modal-footer">
-            <slot name="footer" />
-          </div>
+              <!-- Footer -->
+              <div v-if="$slots.footer" class="bg-bg-tertiary/30 px-4 py-3 sm:flex sm:flex-row-reverse sm:px-6 border-t border-border-subtle">
+                <slot name="footer" />
+              </div>
+            </DialogPanel>
+          </TransitionChild>
         </div>
       </div>
-    </Transition>
-  </Teleport>
+    </Dialog>
+  </TransitionRoot>
 </template>
-
-<style scoped>
-.modal-enter-active,
-.modal-leave-active {
-  transition: all 0.3s ease;
-}
-
-.modal-enter-from,
-.modal-leave-to {
-  opacity: 0;
-}
-
-.modal-enter-from .modal-backdrop,
-.modal-leave-to .modal-backdrop {
-  opacity: 0;
-}
-
-.modal-enter-from > div:last-child,
-.modal-leave-to > div:last-child {
-  transform: scale(0.95);
-  opacity: 0;
-}
-</style>

@@ -1,195 +1,228 @@
-<script setup lang="ts">
-import { ref } from 'vue'
-import { ejecutivaData } from '../data/vistaEjecutiva'
-
-const activeTab = ref('dashboard')
-
-const tabs = [
-  { id: 'dashboard', label: 'Panel Ejecutivo', icon: 'M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z' },
-  { id: 'maps', label: 'Mapas Estratégicos', icon: 'M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7' },
-  { id: 'reports', label: 'Reportes', icon: 'M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z' },
-]
-
-const getStatusColor = (status: string) => {
-    switch (status.toLowerCase()) {
-        case 'óptimo': return 'bg-tyravex-success'
-        case 'atención': return 'bg-tyravex-warning'
-        case 'crítico': return 'bg-tyravex-danger'
-        default: return 'bg-tyravex-text-muted'
-    }
-}
-</script>
-
 <template>
-  <div class="h-full flex flex-col p-6 animate-fade-in">
-    <!-- Header -->
-    <div class="flex justify-between items-start mb-6">
+  <div class="ejecutiva-view">
+    <header class="view-header">
+      <div class="header-top">
         <div>
-            <h1 class="text-3xl font-bold text-tyravex-text-primary">Vista Ejecutiva</h1>
-            <p class="text-tyravex-text-secondary mt-1">Resumen de alto nivel para toma de decisiones rápida.</p>
+          <div class="section-tag">EXECUTIVE</div>
+          <h1 class="section-title">EXECUTIVE OVERVIEW</h1>
+          <p class="section-subtitle">High-level operational summary for rapid decision-making</p>
         </div>
-        <div class="flex items-center gap-4">
-            <div class="px-4 py-2 bg-tyravex-bg-card border border-tyravex-border rounded-lg text-right">
-                <p class="text-xs text-tyravex-text-muted uppercase">Eficiencia Operativa</p>
-                <p class="text-xl font-bold text-tyravex-primary">{{ ejecutivaData.score }}%</p>
-            </div>
-            <button class="flex items-center gap-2 bg-tyravex-primary hover:bg-tyravex-primary-light text-white px-4 py-2 rounded-btn transition-colors shadow-glow-blue">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
-                <span>Reporte Diario PDF</span>
-            </button>
+        <div class="header-metrics">
+          <div class="metric-chip">
+            <span class="metric-label">OPERATIONAL SCORE</span>
+            <span class="metric-value" style="color: #00ffaa;">87.4%</span>
+          </div>
         </div>
+      </div>
+    </header>
+
+    <div class="kpi-row">
+      <div class="kpi-card" v-for="kpi in kpis" :key="kpi.label">
+        <div class="kpi-label">{{ kpi.label }}</div>
+        <div class="kpi-value" :style="{ color: kpi.color }">{{ kpi.value }}</div>
+        <div class="kpi-sub">{{ kpi.sub }}</div>
+      </div>
     </div>
 
-    <!-- Tabs -->
-    <div class="flex border-b border-tyravex-border mb-6 overflow-x-auto">
-        <button 
-            v-for="tab in tabs" 
-            :key="tab.id"
-            @click="activeTab = tab.id"
-            class="px-6 py-3 flex items-center gap-2 border-b-2 transition-colors whitespace-nowrap"
-            :class="activeTab === tab.id ? 'border-tyravex-primary text-tyravex-primary' : 'border-transparent text-tyravex-text-muted hover:text-tyravex-text-primary'"
-        >
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" :d="tab.icon" />
-            </svg>
-            {{ tab.label }}
-        </button>
+    <div class="card-panel">
+      <div class="card-header">
+        <span class="card-title">MODULE HEALTH MATRIX</span>
+        <span class="badge badge-success">ALL SYSTEMS NOMINAL</span>
+      </div>
+      <div class="module-grid">
+        <div class="module-card" v-for="mod in moduleHealth" :key="mod.name">
+          <div class="module-status-dot" :class="'dot-' + mod.level"></div>
+          <div class="module-name">{{ mod.name }}</div>
+          <div class="module-score mono-text" :style="{ color: mod.scoreColor }">{{ mod.score }}%</div>
+          <div class="module-status-label">{{ mod.status }}</div>
+          <div class="module-trend" :class="mod.trendDir">{{ mod.trendDir === 'up' ? '+' : '' }}{{ mod.trend }}</div>
+        </div>
+      </div>
     </div>
 
-    <!-- Content Area -->
-    <div class="flex-1 overflow-y-auto custom-scrollbar">
-
-        <!-- DASHBOARD TAB -->
-        <div v-if="activeTab === 'dashboard'" class="space-y-6">
-            <!-- Top Status -->
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                 <!-- Main Status -->
-                <div class="bg-tyravex-bg-card border border-tyravex-border rounded-card p-6 flex flex-col items-center justify-center text-center relative overflow-hidden">
-                    <div class="absolute inset-0 bg-gradient-to-br from-tyravex-warning/10 to-transparent"></div>
-                    <h3 class="font-bold text-tyravex-text-secondary uppercase text-sm mb-2 relative z-10">Estado General del Sistema</h3>
-                    <div class="text-3xl font-bold text-tyravex-warning mb-2 relative z-10">{{ ejecutivaData.globalStatus.toUpperCase() }}</div>
-                    <div class="w-full h-2 bg-tyravex-bg-tertiary rounded-full mt-4 overflow-hidden relative z-10">
-                        <div class="h-full bg-tyravex-warning w-3/4 animate-pulse"></div>
-                    </div>
-                </div>
-
-                <!-- Active Priorities -->
-                <div class="lg:col-span-2 bg-tyravex-bg-card border border-tyravex-border rounded-card p-6">
-                    <h3 class="font-bold text-tyravex-text-primary mb-4 flex items-center gap-2">
-                        <span class="w-2 h-2 rounded-full bg-tyravex-danger animate-pulse"></span>
-                        Prioridades del Día
-                    </h3>
-                    <div class="space-y-3">
-                        <div v-for="prio in ejecutivaData.priorities" :key="prio.id" class="flex gap-4 items-center p-3 bg-tyravex-bg-tertiary rounded border border-tyravex-border/50">
-                            <span class="text-2xl opacity-50 font-bold text-tyravex-text-muted">#{{ prio.id }}</span>
-                            <div class="flex-1">
-                                <p class="font-medium text-tyravex-text-primary">{{ prio.text }}</p>
-                            </div>
-                            <span class="px-2 py-1 bg-tyravex-bg-primary rounded text-xs uppercase font-bold"
-                                :class="prio.type === 'Crítico' ? 'text-tyravex-danger' : (prio.type === 'Alto' ? 'text-tyravex-warning' : 'text-tyravex-success')"
-                            >{{ prio.type }}</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Modules Grid -->
-            <h3 class="font-bold text-tyravex-text-primary mt-4">Estado por Módulo</h3>
-            <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-                <div v-for="mod in ejecutivaData.modules" :key="mod.id" class="bg-tyravex-bg-card border border-tyravex-border rounded-card p-4 flex flex-col items-center hover:bg-tyravex-bg-tertiary transition-colors cursor-pointer">
-                    <div class="w-3 h-3 rounded-full mb-3 shadow-[0_0_10px_currentColor]" :class="getStatusColor(mod.status)"></div>
-                    <h4 class="font-bold text-tyravex-text-primary text-sm mb-1">{{ mod.name }}</h4>
-                    <span class="text-xs text-tyravex-text-muted">{{ mod.status }}</span>
-                    
-                    <div class="mt-3 w-full h-8 flex items-end justify-center gap-1">
-                        <!-- Tiny trend chart simulation -->
-                        <div class="w-1 bg-tyravex-bg-tertiary/50" :class="mod.trend === 'up' ? 'h-3' : (mod.trend === 'down' ? 'h-6' : 'h-4')"></div>
-                        <div class="w-1 bg-tyravex-bg-tertiary/50" :class="mod.trend === 'up' ? 'h-5' : (mod.trend === 'down' ? 'h-4' : 'h-4')"></div>
-                        <div class="w-1" :class="mod.trend === 'up' ? 'h-8 bg-tyravex-success' : (mod.trend === 'down' ? 'h-2 bg-tyravex-danger' : 'h-4 bg-tyravex-warning')"></div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Recent Alerts -->
-            <div class="bg-tyravex-bg-card border border-tyravex-border rounded-card p-6">
-                <h3 class="font-bold text-tyravex-text-primary mb-4">Últimas Alertas Críticas</h3>
-                <div class="divide-y divide-tyravex-border/50">
-                    <div v-for="alert in ejecutivaData.alerts" :key="alert.id" class="py-3 flex items-center gap-4">
-                        <span class="text-xs font-mono text-tyravex-text-muted">{{ alert.time }}</span>
-                        <p class="flex-1 text-sm text-tyravex-text-primary">{{ alert.message }}</p>
-                        <span class="w-2 h-2 rounded-full" 
-                            :class="alert.type === 'critical' ? 'bg-tyravex-danger' : (alert.type === 'warning' ? 'bg-tyravex-warning' : 'bg-tyravex-success')"
-                        ></span>
-                    </div>
-                </div>
-            </div>
+    <div class="grid-2col mt-16">
+      <div class="card-panel">
+        <div class="card-header">
+          <span class="card-title">CROSS-MODULE PERFORMANCE</span>
         </div>
-
-        <!-- MAPS STRATEGIC TAB -->
-        <div v-if="activeTab === 'maps'" class="h-full flex flex-col items-center justify-center bg-tyravex-bg-card border border-tyravex-border rounded-card p-8">
-            <h3 class="text-2xl font-bold text-tyravex-text-primary mb-4">Mapa Estratégico Integral</h3>
-            <div class="w-full max-w-3xl aspect-video bg-tyravex-bg-primary rounded-lg border border-tyravex-border relative overflow-hidden flex items-center justify-center">
-                <div class="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10"></div>
-                
-                <!-- Mock Map Elements -->
-                <div class="absolute top-1/4 left-1/4 w-32 h-32 border-2 border-tyravex-primary/30 rounded-full animate-ping" style="animation-duration: 3s"></div>
-                <div class="absolute bottom-1/3 right-1/3 w-24 h-24 border-2 border-tyravex-danger/30 rounded-full animate-ping" style="animation-duration: 2s"></div>
-                
-                <div class="z-10 text-center">
-                    <p class="text-tyravex-text-muted mb-4">Visualización multicapa: Geografía + Tiempo + Riesgo</p>
-                    <button class="px-6 py-2 border border-tyravex-primary text-tyravex-primary rounded hover:bg-tyravex-primary/10 transition-colors">
-                        Explorar Mapa Interactivo Fullscreen
-                    </button>
-                </div>
-            </div>
+        <v-chart :option="performanceChart" style="height: 320px;" autoresize />
+      </div>
+      <div class="card-panel">
+        <div class="card-header">
+          <span class="card-title">RESOURCE ALLOCATION</span>
         </div>
-
-        <!-- REPORTS TAB -->
-        <div v-if="activeTab === 'reports'" class="space-y-6">
-            <h3 class="font-bold text-tyravex-text-primary">Generación de Reportes</h3>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div class="bg-tyravex-bg-card border border-tyravex-border rounded-card p-6 hover:border-tyravex-primary transition-colors cursor-pointer group">
-                    <div class="flex items-center gap-4 mb-4">
-                        <div class="p-3 bg-tyravex-bg-tertiary rounded-lg text-tyravex-primary group-hover:bg-tyravex-primary group-hover:text-white transition-colors">
-                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
-                        </div>
-                        <div>
-                            <h4 class="font-bold text-tyravex-text-primary">Resumen Diario</h4>
-                            <p class="text-xs text-tyravex-text-muted">Generado automáticamente 08:00 AM</p>
-                        </div>
-                    </div>
-                    <button class="w-full py-2 bg-tyravex-bg-tertiary text-tyravex-text-primary text-sm rounded hover:bg-tyravex-primary hover:text-white transition-colors">Descargar PDF</button>
-                </div>
-
-                 <div class="bg-tyravex-bg-card border border-tyravex-border rounded-card p-6 hover:border-tyravex-primary transition-colors cursor-pointer group">
-                    <div class="flex items-center gap-4 mb-4">
-                        <div class="p-3 bg-tyravex-bg-tertiary rounded-lg text-tyravex-warning group-hover:bg-tyravex-warning group-hover:text-white transition-colors">
-                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
-                        </div>
-                        <div>
-                            <h4 class="font-bold text-tyravex-text-primary">Informe de Riesgos</h4>
-                            <p class="text-xs text-tyravex-text-muted">Análisis semanal de amenazas</p>
-                        </div>
-                    </div>
-                    <button class="w-full py-2 bg-tyravex-bg-tertiary text-tyravex-text-primary text-sm rounded hover:bg-tyravex-primary hover:text-white transition-colors">Descargar PDF</button>
-                </div>
-            </div>
-            
-            <div class="bg-tyravex-bg-card border border-tyravex-border rounded-card p-6 mt-6">
-                <h4 class="font-bold text-tyravex-text-primary mb-4">Historial de Descargas</h4>
-                <ul class="space-y-2 text-sm">
-                    <li class="flex justify-between py-2 border-b border-tyravex-border/30">
-                        <span class="text-tyravex-text-secondary">Reporte_Diario_01-02-2024.pdf</span>
-                        <span class="text-tyravex-text-muted">Hace 2 horas</span>
-                    </li>
-                    <li class="flex justify-between py-2 border-b border-tyravex-border/30">
-                        <span class="text-tyravex-text-secondary">Analisis_Crisis_ZonaA.pdf</span>
-                        <span class="text-tyravex-text-muted">Ayer</span>
-                    </li>
-                </ul>
-            </div>
-        </div>
-
+        <v-chart :option="resourceChart" style="height: 320px;" autoresize />
+      </div>
     </div>
+
+    <div class="card-panel mt-16">
+      <div class="card-header">
+        <span class="card-title">RECENT CRITICAL ALERTS</span>
+        <span class="badge badge-danger">{{ alerts.length }} ALERTS</span>
+      </div>
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>TIME</th>
+            <th>MODULE</th>
+            <th>ALERT</th>
+            <th>SEVERITY</th>
+            <th>STATUS</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="alert in alerts" :key="alert.id">
+            <td class="mono-text">{{ alert.time }}</td>
+            <td><span class="badge badge-info">{{ alert.module }}</span></td>
+            <td>{{ alert.message }}</td>
+            <td><span class="badge" :class="'badge-' + alert.severityType">{{ alert.severity }}</span></td>
+            <td><span class="badge" :class="'badge-' + alert.statusType">{{ alert.status }}</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="card-panel mt-16">
+      <div class="card-header">
+        <span class="card-title">DAILY PRIORITIES</span>
+      </div>
+      <div class="priorities-list">
+        <div class="priority-item" v-for="(p, i) in priorities" :key="p.id">
+          <div class="priority-rank mono-text">{{ String(i + 1).padStart(2, '0') }}</div>
+          <div class="priority-content">
+            <div class="priority-text">{{ p.text }}</div>
+            <div class="priority-owner mono-text">{{ p.owner }}</div>
+          </div>
+          <span class="badge" :class="'badge-' + p.urgencyType">{{ p.urgency }}</span>
+        </div>
+      </div>
+    </div>
+
+    <footer class="view-footer">TYRAVEX INTELLIGENCE SYSTEM // CONFIDENTIAL // 2026</footer>
   </div>
 </template>
+
+<script setup lang="ts">
+import { use } from 'echarts/core'
+import { CanvasRenderer } from 'echarts/renderers'
+import { BarChart, PieChart } from 'echarts/charts'
+import { GridComponent, TooltipComponent, LegendComponent } from 'echarts/components'
+import VChart from 'vue-echarts'
+
+use([CanvasRenderer, BarChart, PieChart, GridComponent, TooltipComponent, LegendComponent])
+
+const kpis = [
+  { label: 'GLOBAL STATUS', value: 'ELEVATED', sub: 'Level 3 of 5', color: '#ffcc00' },
+  { label: 'VOTE INTENTION', value: '48.3%', sub: '+2.1% trend', color: '#00ffaa' },
+  { label: 'WIN PROBABILITY', value: '72.4%', sub: 'ML Model v2.4', color: '#4A90E2' },
+  { label: 'DAYS TO ELECTION', value: '127', sub: 'June 18, 2026', color: '#ff6b35' },
+]
+
+const moduleHealth = [
+  { name: 'MONITOR', score: 98, scoreColor: '#00ffaa', status: 'OPTIMAL', level: 'success', trend: '1.2%', trendDir: 'up' },
+  { name: 'ANALYTICS', score: 96, scoreColor: '#00ffaa', status: 'OPTIMAL', level: 'success', trend: '0.8%', trendDir: 'up' },
+  { name: 'PREDICT', score: 94, scoreColor: '#00ffaa', status: 'OPTIMAL', level: 'success', trend: '2.1%', trendDir: 'up' },
+  { name: 'RESEARCH', score: 92, scoreColor: '#00ffaa', status: 'GOOD', level: 'success', trend: '0.5%', trendDir: 'up' },
+  { name: 'TERRITORY', score: 89, scoreColor: '#ffcc00', status: 'ATTENTION', level: 'warning', trend: '-1.2%', trendDir: 'down' },
+  { name: 'CRISIS', score: 87, scoreColor: '#ffcc00', status: 'STANDBY', level: 'warning', trend: '0.0%', trendDir: 'up' },
+  { name: 'CONTROL INFO', score: 94, scoreColor: '#00ffaa', status: 'OPTIMAL', level: 'success', trend: '1.8%', trendDir: 'up' },
+  { name: 'STRATEGY', score: 91, scoreColor: '#00ffaa', status: 'GOOD', level: 'success', trend: '3.4%', trendDir: 'up' },
+  { name: 'SECURITY', score: 100, scoreColor: '#00ffaa', status: 'PERFECT', level: 'success', trend: '0.0%', trendDir: 'up' },
+]
+
+const performanceChart = {
+  backgroundColor: 'transparent',
+  tooltip: { trigger: 'axis', backgroundColor: 'rgba(20,22,28,0.95)', borderColor: 'rgba(255,255,255,0.08)', textStyle: { color: '#e0e0e0', fontFamily: 'Montserrat' } },
+  grid: { left: 90, right: 30, top: 10, bottom: 10 },
+  xAxis: { type: 'value', max: 100, axisLine: { show: false }, splitLine: { lineStyle: { color: 'rgba(255,255,255,0.05)' } }, axisLabel: { color: '#888', fontFamily: 'Roboto Mono', fontSize: 10, formatter: '{value}%' } },
+  yAxis: { type: 'category', data: ['Monitor', 'Analytics', 'Predict', 'Research', 'Territory', 'Crisis', 'Control', 'Strategy', 'Security'], axisLine: { lineStyle: { color: 'rgba(255,255,255,0.08)' } }, axisLabel: { color: '#a0a0a0', fontFamily: 'Montserrat', fontSize: 11 } },
+  series: [{ type: 'bar', data: [98, 96, 94, 92, 89, 87, 94, 91, 100], itemStyle: { color: (params: any) => params.data > 90 ? '#00ffaa' : params.data > 80 ? '#ffcc00' : '#ff4444' }, barWidth: '55%' }],
+}
+
+const resourceChart = {
+  backgroundColor: 'transparent',
+  tooltip: { trigger: 'item', backgroundColor: 'rgba(20,22,28,0.95)', borderColor: 'rgba(255,255,255,0.08)', textStyle: { color: '#e0e0e0', fontFamily: 'Montserrat' } },
+  legend: { bottom: 0, textStyle: { color: '#a0a0a0', fontFamily: 'Montserrat', fontSize: 10 } },
+  series: [{
+    type: 'pie', radius: ['35%', '65%'], center: ['50%', '42%'],
+    label: { show: false },
+    data: [
+      { value: 35, name: 'Digital Ops', itemStyle: { color: '#4A90E2' } },
+      { value: 25, name: 'Ground Ops', itemStyle: { color: '#ff6b35' } },
+      { value: 18, name: 'Media Buy', itemStyle: { color: '#00ffaa' } },
+      { value: 12, name: 'Research', itemStyle: { color: '#ffcc00' } },
+      { value: 10, name: 'Infrastructure', itemStyle: { color: '#888' } },
+    ],
+  }],
+}
+
+const alerts = [
+  { id: 1, time: '23:42', module: 'CRISIS', message: 'Bot network escalation detected — 847 accounts active', severity: 'CRITICAL', severityType: 'danger', status: 'ACTIVE', statusType: 'danger' },
+  { id: 2, time: '22:15', module: 'MONITOR', message: 'Negative sentiment spike on WhatsApp detected', severity: 'HIGH', severityType: 'danger', status: 'MONITORING', statusType: 'warning' },
+  { id: 3, time: '20:30', module: 'TERRITORY', message: 'Chihuahua D-04 support dropped below threshold', severity: 'MEDIUM', severityType: 'warning', status: 'ACKNOWLEDGED', statusType: 'info' },
+  { id: 4, time: '19:15', module: 'RESEARCH', message: 'New opposition inconsistency detected — education policy', severity: 'MEDIUM', severityType: 'warning', status: 'LOGGED', statusType: 'success' },
+  { id: 5, time: '18:00', module: 'PREDICT', message: 'Model recalibration complete — accuracy improved to 94.2%', severity: 'LOW', severityType: 'info', status: 'RESOLVED', statusType: 'success' },
+]
+
+const priorities = [
+  { id: 1, text: 'Respond to coordinated bot attack on education reform messaging', owner: 'Digital Response Team', urgency: 'CRITICAL', urgencyType: 'danger' },
+  { id: 2, text: 'Approve increased digital ad budget reallocation', owner: 'Campaign Director', urgency: 'HIGH', urgencyType: 'danger' },
+  { id: 3, text: 'Schedule candidate visit to Chihuahua D-04 — declining support', owner: 'Operations Lead', urgency: 'HIGH', urgencyType: 'danger' },
+  { id: 4, text: 'Prepare counter-narrative for upcoming opposition smear campaign', owner: 'Communications Team', urgency: 'MEDIUM', urgencyType: 'warning' },
+  { id: 5, text: 'Review weekly intelligence briefing and sign off on predictions', owner: 'Strategy Advisor', urgency: 'MEDIUM', urgencyType: 'warning' },
+]
+</script>
+
+<style scoped>
+.ejecutiva-view { font-family: 'Montserrat', sans-serif; color: #e0e0e0; }
+.view-header { margin-bottom: 24px; }
+.header-top { display: flex; justify-content: space-between; align-items: flex-start; }
+.section-tag { display: inline-block; font-family: 'Oswald', sans-serif; font-size: 11px; font-weight: 600; letter-spacing: 0.15em; color: #ff6b35; padding: 4px 12px; border: 1px solid rgba(255, 107, 53, 0.3); border-radius: 2px; margin-bottom: 8px; text-transform: uppercase; }
+.section-title { font-family: 'Oswald', sans-serif; font-size: 28px; font-weight: 600; color: #e0e0e0; letter-spacing: 0.05em; margin: 0; }
+.section-subtitle { font-size: 13px; color: #888; margin-top: 4px; }
+.header-metrics { display: flex; gap: 12px; }
+.metric-chip { display: flex; flex-direction: column; align-items: center; padding: 8px 16px; background: rgba(20, 22, 28, 0.7); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 4px; }
+.metric-label { font-size: 9px; font-weight: 600; letter-spacing: 0.1em; color: #888; text-transform: uppercase; }
+.metric-value { font-family: 'Oswald', sans-serif; font-size: 24px; font-weight: 600; }
+.kpi-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 16px; }
+.kpi-card { background: rgba(20, 22, 28, 0.7); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 4px; padding: 16px; text-align: center; }
+.kpi-label { font-size: 10px; font-weight: 600; letter-spacing: 0.1em; color: #888; text-transform: uppercase; margin-bottom: 8px; }
+.kpi-value { font-family: 'Oswald', sans-serif; font-size: 32px; font-weight: 600; line-height: 1; }
+.kpi-sub { font-family: 'Roboto Mono', monospace; font-size: 11px; color: #a0a0a0; margin-top: 6px; }
+.grid-2col { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.card-panel { background: rgba(20, 22, 28, 0.7); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 4px; padding: 20px; }
+.mt-16 { margin-top: 16px; }
+.card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+.card-title { font-family: 'Oswald', sans-serif; font-size: 13px; font-weight: 500; letter-spacing: 0.1em; color: #a0a0a0; text-transform: uppercase; }
+.badge { font-family: 'Roboto Mono', monospace; font-size: 10px; font-weight: 600; padding: 3px 8px; border-radius: 2px; letter-spacing: 0.05em; text-transform: uppercase; }
+.badge-success { background: rgba(0, 255, 170, 0.15); color: #00ffaa; }
+.badge-warning { background: rgba(255, 204, 0, 0.15); color: #ffcc00; }
+.badge-danger { background: rgba(255, 68, 68, 0.15); color: #ff4444; }
+.badge-info { background: rgba(74, 144, 226, 0.15); color: #4A90E2; }
+.module-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+.module-card { background: rgba(15, 17, 21, 0.5); border: 1px solid rgba(255, 255, 255, 0.06); border-radius: 4px; padding: 16px; text-align: center; transition: all 0.15s ease; cursor: default; }
+.module-card:hover { border-color: rgba(255, 255, 255, 0.12); background: rgba(255, 107, 53, 0.03); }
+.module-status-dot { width: 8px; height: 8px; border-radius: 50%; margin: 0 auto 8px; }
+.dot-success { background: #00ffaa; box-shadow: 0 0 6px rgba(0, 255, 170, 0.4); }
+.dot-warning { background: #ffcc00; box-shadow: 0 0 6px rgba(255, 204, 0, 0.4); }
+.dot-danger { background: #ff4444; box-shadow: 0 0 6px rgba(255, 68, 68, 0.4); }
+.module-name { font-family: 'Oswald', sans-serif; font-size: 12px; font-weight: 600; letter-spacing: 0.1em; color: #e0e0e0; margin-bottom: 4px; }
+.module-score { font-size: 24px; font-weight: 700; line-height: 1.2; }
+.module-status-label { font-size: 10px; color: #888; letter-spacing: 0.05em; margin-top: 2px; }
+.module-trend { font-family: 'Roboto Mono', monospace; font-size: 11px; margin-top: 4px; }
+.module-trend.up { color: #00ffaa; }
+.module-trend.down { color: #ff4444; }
+.mono-text { font-family: 'Roboto Mono', monospace; }
+.data-table { width: 100%; border-collapse: collapse; }
+.data-table th { font-size: 10px; font-weight: 600; letter-spacing: 0.1em; color: #888; text-align: left; padding: 8px 12px; border-bottom: 1px solid rgba(255, 255, 255, 0.08); text-transform: uppercase; }
+.data-table td { font-size: 13px; padding: 10px 12px; border-bottom: 1px solid rgba(255, 255, 255, 0.04); }
+.data-table tr:hover td { background: rgba(255, 107, 53, 0.04); }
+.priorities-list { display: flex; flex-direction: column; gap: 8px; }
+.priority-item { display: flex; align-items: center; gap: 14px; padding: 12px; border: 1px solid rgba(255, 255, 255, 0.06); border-radius: 4px; transition: background 0.15s ease; }
+.priority-item:hover { background: rgba(255, 107, 53, 0.04); }
+.priority-rank { font-size: 18px; font-weight: 700; color: #555; min-width: 28px; }
+.priority-content { flex: 1; }
+.priority-text { font-size: 13px; color: #e0e0e0; }
+.priority-owner { font-size: 11px; color: #888; margin-top: 2px; }
+.view-footer { text-align: center; font-family: 'Roboto Mono', monospace; font-size: 10px; color: #555; letter-spacing: 0.15em; padding: 32px 0 16px; border-top: 1px solid rgba(255, 255, 255, 0.05); margin-top: 32px; }
+</style>

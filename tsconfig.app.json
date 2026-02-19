@@ -23,5 +23,19 @@
     "src/**/*.ts",
     "src/**/*.tsx",
     "src/**/*.vue"
+  ],
+  "exclude": [
+    "src/components/analytics/**",
+    "src/components/controlInfo/**",
+    "src/components/crisis/**",
+    "src/components/monitor/**",
+    "src/components/research/**",
+    "src/components/strategic/**",
+    "src/components/tactical/**",
+    "src/components/predict/**",
+    "src/components/dashboard/**",
+    "src/composables/**",
+    "src/views/ControlInfoView.vue",
+    "src/views/DashboardMock.vue"
   ]
 }

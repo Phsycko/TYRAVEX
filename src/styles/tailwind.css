@@ -1,525 +1,235 @@
-/* Import Google Fonts */
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Roboto+Mono:wght@400;500;600&display=swap');
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @layer base {
-    html {
-        scroll-behavior: smooth;
-    }
+  :root {
+    --bg-primary: #0f1115;
+    --bg-card: rgba(20, 22, 28, 0.7);
+    --border: rgba(255, 255, 255, 0.08);
+    --accent: #ff6b35;
+    --success: #00ffaa;
+    --danger: #ff4444;
+    --warning: #ffcc00;
+    --text-primary: #e0e0e0;
+    --text-secondary: #a0a0a0;
+    --text-mono: #888;
+  }
 
-    body {
-        @apply bg-tyravex-bg-primary text-tyravex-text-primary font-sans antialiased;
-        font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
-    }
+  body {
+    background-color: var(--bg-primary);
+    color: var(--text-primary);
+    font-family: 'Montserrat', system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    overflow: hidden;
+  }
 
-    * {
-        @apply border-tyravex-border;
-    }
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Oswald', sans-serif;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+  }
 
-    /* Typography */
-    h1 {
-        @apply text-h1 font-bold text-tyravex-text-primary;
-    }
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
 
-    h2 {
-        @apply text-h2 font-bold text-tyravex-text-primary;
-    }
+  ::-webkit-scrollbar-track {
+    background: var(--bg-primary);
+  }
 
-    h3 {
-        @apply text-h3 font-semibold text-tyravex-text-primary;
-    }
+  ::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 4px;
+  }
 
-    /* Selection */
-    ::selection {
-        @apply bg-tyravex-secondary/30 text-tyravex-text-primary;
-    }
+  ::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.2);
+  }
 }
 
 @layer components {
-    /* ============================================
-       CARDS
-       ============================================ */
-    .card {
-        @apply bg-tyravex-bg-secondary/80 backdrop-blur-glass border border-tyravex-border rounded-card p-5 shadow-card;
-        @apply transition-all duration-200;
-    }
-
-    .card:hover {
-        @apply shadow-card-hover border-tyravex-border-light;
-    }
-
-    .card-header {
-        @apply flex items-center justify-between mb-4;
-    }
-
-    .card-title {
-        @apply text-lg font-semibold text-tyravex-text-primary;
-    }
-
-    .card-subtitle {
-        @apply text-sm text-tyravex-text-muted;
-    }
-
-    /* Glass effect card */
-    .card-glass {
-        @apply bg-tyravex-bg-card backdrop-blur-glass border border-tyravex-border rounded-card p-5;
-        @apply shadow-card transition-all duration-200;
-    }
-
-    /* ============================================
-       BUTTONS
-       ============================================ */
-    .btn {
-        @apply inline-flex items-center justify-center gap-2 px-4 py-2 rounded-btn font-medium text-sm;
-        @apply transition-all duration-200 cursor-pointer;
-        @apply focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-tyravex-bg-primary;
-    }
-
-    .btn-primary {
-        @apply btn bg-tyravex-secondary text-white;
-        @apply hover:bg-tyravex-secondary-light hover:shadow-glow-orange;
-        @apply focus:ring-tyravex-secondary;
-    }
-
-    .btn-secondary {
-        @apply btn bg-transparent border border-tyravex-primary-light text-tyravex-primary-light;
-        @apply hover:bg-tyravex-primary-light/10 hover:border-tyravex-primary;
-        @apply focus:ring-tyravex-primary;
-    }
-
-    .btn-outline {
-        @apply btn bg-transparent border border-tyravex-border text-tyravex-text-secondary;
-        @apply hover:bg-tyravex-bg-tertiary hover:text-tyravex-text-primary hover:border-tyravex-border-light;
-        @apply focus:ring-tyravex-gray-500;
-    }
-
-    .btn-danger {
-        @apply btn bg-tyravex-danger text-white;
-        @apply hover:bg-tyravex-danger-dark hover:shadow-glow-danger;
-        @apply focus:ring-tyravex-danger;
-    }
-
-    .btn-success {
-        @apply btn bg-tyravex-success text-white;
-        @apply hover:bg-tyravex-success-dark hover:shadow-glow-success;
-        @apply focus:ring-tyravex-success;
-    }
-
-    .btn-sm {
-        @apply px-3 py-1.5 text-xs;
-    }
-
-    .btn-lg {
-        @apply px-6 py-3 text-base;
-    }
-
-    .btn-icon {
-        @apply btn p-2 aspect-square;
-    }
-
-    /* ============================================
-       BADGES
-       ============================================ */
-    .badge {
-        @apply inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium;
-    }
-
-    .badge-success {
-        @apply badge bg-tyravex-success/20 text-tyravex-success;
-    }
-
-    .badge-danger {
-        @apply badge bg-tyravex-danger/20 text-tyravex-danger;
-    }
-
-    .badge-warning {
-        @apply badge bg-tyravex-warning/20 text-tyravex-warning;
-    }
-
-    .badge-neutral {
-        @apply badge bg-tyravex-gray-500/20 text-tyravex-gray-300;
-    }
-
-    .badge-primary {
-        @apply badge bg-tyravex-primary/30 text-tyravex-gray-200;
-    }
-
-    .badge-secondary {
-        @apply badge bg-tyravex-secondary/20 text-tyravex-secondary;
-    }
-
-    /* ============================================
-       INPUTS & FORMS
-       ============================================ */
-    .input {
-        @apply w-full px-4 py-2.5 bg-tyravex-bg-tertiary border border-tyravex-border rounded-btn;
-        @apply text-tyravex-text-primary placeholder-tyravex-text-muted;
-        @apply focus:outline-none focus:border-tyravex-secondary focus:ring-1 focus:ring-tyravex-secondary;
-        @apply transition-all duration-200;
-    }
-
-    .input-sm {
-        @apply px-3 py-1.5 text-sm;
-    }
-
-    .select {
-        @apply input appearance-none cursor-pointer;
-        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%2395A5A6' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
-        background-position: right 0.5rem center;
-        background-repeat: no-repeat;
-        background-size: 1.5em 1.5em;
-        padding-right: 2.5rem;
-    }
-
-    .label {
-        @apply block text-sm font-medium text-tyravex-text-secondary mb-1.5;
-    }
-
-    /* ============================================
-       TABLES
-       ============================================ */
-    .table-container {
-        @apply overflow-x-auto rounded-card border border-tyravex-border;
-    }
-
-    .table {
-        @apply w-full text-sm;
-    }
-
-    .table thead {
-        @apply bg-tyravex-bg-tertiary;
-    }
-
-    .table th {
-        @apply px-4 py-3 text-left text-xs font-semibold text-tyravex-text-muted uppercase tracking-wider;
-    }
-
-    .table th.sortable {
-        @apply cursor-pointer hover:text-tyravex-text-primary hover:bg-tyravex-bg-secondary/50;
-    }
-
-    .table tbody {
-        @apply divide-y divide-tyravex-border;
-    }
-
-    .table td {
-        @apply px-4 py-3 text-tyravex-text-secondary;
-    }
-
-    .table tbody tr {
-        @apply hover:bg-tyravex-bg-tertiary/50 transition-colors duration-150;
-    }
-
-    .table tbody tr:nth-child(even) {
-        @apply bg-tyravex-bg-secondary/30;
-    }
-
-    /* ============================================
-       STAT CARD
-       ============================================ */
-    .stat-card {
-        @apply card flex flex-col;
-    }
-
-    .stat-label {
-        @apply text-xs font-medium text-tyravex-text-muted uppercase tracking-wide mb-1;
-    }
-
-    .stat-value {
-        @apply text-2xl font-bold text-tyravex-text-primary font-mono;
-    }
-
-    .stat-change {
-        @apply flex items-center gap-1 text-sm mt-1;
-    }
-
-    .stat-change.positive {
-        @apply text-tyravex-success;
-    }
-
-    .stat-change.negative {
-        @apply text-tyravex-danger;
-    }
-
-    /* ============================================
-       LIVE INDICATOR
-       ============================================ */
-    .live-indicator {
-        @apply inline-flex items-center gap-2 px-3 py-1 rounded-full;
-        @apply bg-tyravex-danger/20 text-tyravex-danger text-xs font-bold uppercase;
-    }
-
-    .live-indicator::before {
-        content: '';
-        @apply w-2 h-2 rounded-full bg-tyravex-danger animate-pulse-live;
-    }
-
-    /* ============================================
-       SCROLLBAR
-       ============================================ */
-    .custom-scrollbar::-webkit-scrollbar {
-        width: 6px;
-        height: 6px;
-    }
-
-    .custom-scrollbar::-webkit-scrollbar-track {
-        @apply bg-tyravex-bg-secondary rounded-full;
-    }
-
-    .custom-scrollbar::-webkit-scrollbar-thumb {
-        @apply bg-tyravex-gray-500 rounded-full;
-    }
-
-    .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-        @apply bg-tyravex-gray-400;
-    }
-
-    /* ============================================
-       NAVIGATION
-       ============================================ */
-    .nav-item {
-        @apply flex items-center gap-3 px-4 py-3 text-tyravex-text-muted rounded-lg;
-        @apply transition-all duration-200 cursor-pointer;
-    }
-
-    .nav-item:hover {
-        @apply bg-tyravex-bg-tertiary text-tyravex-text-secondary;
-    }
-
-    .nav-item.active {
-        @apply bg-tyravex-secondary/10 text-tyravex-secondary border-l-4 border-tyravex-secondary;
-        @apply font-medium;
-    }
-
-    .nav-item .nav-icon {
-        @apply w-5 h-5;
-    }
-
-    /* ============================================
-       TOOLTIP
-       ============================================ */
-    .tooltip {
-        @apply relative inline-block;
-    }
-
-    .tooltip .tooltip-text {
-        @apply invisible absolute z-50 px-3 py-2 text-xs text-tyravex-text-primary;
-        @apply bg-tyravex-bg-tertiary border border-tyravex-border rounded-lg shadow-lg;
-        @apply -top-10 left-1/2 -translate-x-1/2 whitespace-nowrap opacity-0;
-        @apply transition-all duration-200;
-    }
-
-    .tooltip:hover .tooltip-text {
-        @apply visible opacity-100;
-    }
-
-    /* ============================================
-       GAUGE/METER
-       ============================================ */
-    .gauge-container {
-        @apply relative flex flex-col items-center;
-    }
-
-    .gauge-value {
-        @apply absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/4;
-        @apply text-3xl font-bold font-mono text-tyravex-text-primary;
-    }
-
-    .gauge-label {
-        @apply text-sm text-tyravex-text-muted mt-2;
-    }
-
-    /* ============================================
-       SKELETON LOADING
-       ============================================ */
-    .skeleton {
-        @apply bg-tyravex-bg-tertiary rounded animate-pulse;
-    }
-
-    .skeleton-text {
-        @apply skeleton h-4 w-full rounded;
-    }
-
-    .skeleton-title {
-        @apply skeleton h-6 w-3/4 rounded;
-    }
-
-    .skeleton-circle {
-        @apply skeleton rounded-full;
-    }
-
-    /* ============================================
-       ALERTS/NOTIFICATIONS
-       ============================================ */
-    .alert {
-        @apply flex items-start gap-3 p-4 rounded-card border;
-    }
-
-    .alert-success {
-        @apply alert bg-tyravex-success/10 border-tyravex-success/30 text-tyravex-success;
-    }
-
-    .alert-danger {
-        @apply alert bg-tyravex-danger/10 border-tyravex-danger/30 text-tyravex-danger;
-    }
-
-    .alert-warning {
-        @apply alert bg-tyravex-warning/10 border-tyravex-warning/30 text-tyravex-warning;
-    }
-
-    .alert-info {
-        @apply alert bg-tyravex-primary/10 border-tyravex-primary/30 text-tyravex-gray-200;
-    }
-
-    /* ============================================
-       PROGRESS BAR
-       ============================================ */
-    .progress-bar {
-        @apply h-2 w-full bg-tyravex-bg-tertiary rounded-full overflow-hidden;
-    }
-
-    .progress-bar-fill {
-        @apply h-full rounded-full transition-all duration-500 ease-out;
-    }
-
-    .progress-bar-fill.success {
-        @apply bg-tyravex-success;
-    }
-
-    .progress-bar-fill.warning {
-        @apply bg-tyravex-warning;
-    }
-
-    .progress-bar-fill.danger {
-        @apply bg-tyravex-danger;
-    }
-
-    .progress-bar-fill.primary {
-        @apply bg-tyravex-secondary;
-    }
-
-    /* ============================================
-       DROPDOWN
-       ============================================ */
-    .dropdown {
-        @apply relative inline-block;
-    }
-
-    .dropdown-menu {
-        @apply absolute right-0 mt-2 w-48 py-1 z-50;
-        @apply bg-tyravex-bg-secondary border border-tyravex-border rounded-card shadow-lg;
-        @apply opacity-0 invisible scale-95 origin-top-right;
-        @apply transition-all duration-200;
-    }
-
-    .dropdown.open .dropdown-menu {
-        @apply opacity-100 visible scale-100;
-    }
-
-    .dropdown-item {
-        @apply block px-4 py-2 text-sm text-tyravex-text-secondary;
-        @apply hover:bg-tyravex-bg-tertiary hover:text-tyravex-text-primary;
-        @apply cursor-pointer transition-colors duration-150;
-    }
-
-    /* ============================================
-       TAB NAVIGATION
-       ============================================ */
-    .tabs {
-        @apply flex gap-1 border-b border-tyravex-border;
-    }
-
-    .tab {
-        @apply px-4 py-2.5 text-sm font-medium text-tyravex-text-muted;
-        @apply border-b-2 border-transparent -mb-px;
-        @apply hover:text-tyravex-text-secondary hover:border-tyravex-gray-500;
-        @apply transition-all duration-200 cursor-pointer;
-    }
-
-    .tab.active {
-        @apply text-tyravex-secondary border-tyravex-secondary;
-    }
-
-    /* ============================================
-       MODAL
-       ============================================ */
-    .modal-backdrop {
-        @apply fixed inset-0 bg-black/60 backdrop-blur-sm z-40;
-    }
-
-    .modal {
-        @apply fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-50;
-        @apply w-full max-w-lg bg-tyravex-bg-secondary border border-tyravex-border rounded-card;
-        @apply shadow-2xl;
-    }
-
-    .modal-header {
-        @apply flex items-center justify-between p-4 border-b border-tyravex-border;
-    }
-
-    .modal-body {
-        @apply p-4;
-    }
-
-    .modal-footer {
-        @apply flex items-center justify-end gap-3 p-4 border-t border-tyravex-border;
-    }
-}
-
-@layer utilities {
-    /* Text gradient */
-    .text-gradient-orange {
-        background: linear-gradient(135deg, #FF6B35 0%, #FF8C42 100%);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        background-clip: text;
-    }
-
-    .text-gradient-blue {
-        background: linear-gradient(135deg, #0A2463 0%, #1B3A6B 100%);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        background-clip: text;
-    }
-
-    /* Glow effects */
-    .glow-orange {
-        box-shadow: 0 0 20px rgba(255, 107, 53, 0.4);
-    }
-
-    .glow-success {
-        box-shadow: 0 0 15px rgba(46, 204, 113, 0.4);
-    }
-
-    .glow-danger {
-        box-shadow: 0 0 15px rgba(231, 76, 60, 0.4);
-    }
-
-    /* No scrollbar */
-    .no-scrollbar::-webkit-scrollbar {
-        display: none;
-    }
-
-    .no-scrollbar {
-        -ms-overflow-style: none;
-        scrollbar-width: none;
-    }
-
-    /* Truncate multi-line */
-    .line-clamp-2 {
-        display: -webkit-box;
-        -webkit-line-clamp: 2;
-        -webkit-box-orient: vertical;
-        overflow: hidden;
-    }
-
-    .line-clamp-3 {
-        display: -webkit-box;
-        -webkit-line-clamp: 3;
-        -webkit-box-orient: vertical;
-        overflow: hidden;
-    }
+  .section-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 4px;
+  }
+
+  .section-tag::before {
+    content: '';
+    display: inline-block;
+    width: 3px;
+    height: 14px;
+    background: var(--accent);
+    border-radius: 1px;
+  }
+
+  .section-title {
+    font-family: 'Oswald', sans-serif;
+    font-size: 28px;
+    font-weight: 600;
+    color: #ffffff;
+    letter-spacing: 0.02em;
+  }
+
+  .card-panel {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 20px;
+  }
+
+  .kpi-value {
+    font-family: 'Roboto Mono', monospace;
+    font-weight: 700;
+    color: #ffffff;
+  }
+
+  .kpi-label {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--text-secondary);
+  }
+
+  .data-table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  .data-table thead {
+    border-bottom: 1px solid var(--border);
+  }
+
+  .data-table th {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--text-secondary);
+    padding: 10px 12px;
+    text-align: left;
+  }
+
+  .data-table td {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 13px;
+    color: var(--text-primary);
+    padding: 10px 12px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+  }
+
+  .data-table tbody tr {
+    transition: background-color 150ms ease;
+  }
+
+  .data-table tbody tr:hover {
+    background: rgba(255, 255, 255, 0.03);
+  }
+
+  .status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 3px 10px;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    border-radius: 2px;
+  }
+
+  .btn-primary {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 16px;
+    background: var(--accent);
+    color: #ffffff;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    border: none;
+    border-radius: 2px;
+    cursor: pointer;
+    transition: all 200ms ease;
+  }
+
+  .btn-primary:hover {
+    background: #e85d2c;
+  }
+
+  .btn-ghost {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 16px;
+    background: transparent;
+    color: var(--text-secondary);
+    font-family: 'Montserrat', sans-serif;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    border: 1px solid var(--border);
+    border-radius: 2px;
+    cursor: pointer;
+    transition: all 200ms ease;
+  }
+
+  .btn-ghost:hover {
+    color: var(--text-primary);
+    border-color: rgba(255, 255, 255, 0.2);
+    background: rgba(255, 255, 255, 0.03);
+  }
+
+  .view-footer {
+    font-family: 'Roboto Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.15);
+    text-align: center;
+    padding: 24px 0 8px;
+    border-top: 1px solid rgba(255, 255, 255, 0.04);
+    margin-top: 32px;
+  }
+
+  .live-dot {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--success);
+    animation: pulse-live 2s infinite;
+  }
+
+  @keyframes pulse-live {
+    0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(0, 255, 170, 0.4); }
+    50% { opacity: 0.7; box-shadow: 0 0 0 4px rgba(0, 255, 170, 0); }
+  }
+
+  @keyframes fade-in {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .animate-fade-in {
+    animation: fade-in 250ms ease;
+  }
 }

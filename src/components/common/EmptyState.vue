@@ -1,41 +1,31 @@
 <script setup lang="ts">
-interface Props {
-  title: string
-  description?: string
-  icon?: string
-  actionLabel?: string
-}
+import ActionButton from './ActionButton.vue'
 
-const props = defineProps<Props>()
-const emit = defineEmits<{
-  action: []
+defineProps<{
+  title: string
+  description: string
+  icon?: any
+  actionLabel?: string
 }>()
+
+defineEmits(['action'])
 </script>
 
 <template>
-  <div class="flex flex-col items-center justify-center py-12 px-4 text-center">
-    <div
-      v-if="icon"
-      class="w-16 h-16 rounded-full bg-tyravex-bg-tertiary flex items-center justify-center mb-4"
-    >
-      <span class="text-3xl">{{ icon }}</span>
+  <div class="flex flex-col items-center justify-center p-12 text-center rounded-lg border border-dashed border-border-medium bg-bg-tertiary/20">
+    <div v-if="icon" class="p-4 bg-bg-tertiary rounded-full mb-4 ring-1 ring-border-medium shadow-lg">
+      <component :is="icon" class="w-8 h-8 text-text-secondary" />
     </div>
-
-    <div v-else class="w-16 h-16 rounded-full bg-tyravex-bg-tertiary flex items-center justify-center mb-4">
-      <svg class="w-8 h-8 text-tyravex-text-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
-      </svg>
-    </div>
-
-    <h3 class="text-lg font-semibold text-tyravex-text-primary mb-2">{{ title }}</h3>
-    <p v-if="description" class="text-sm text-tyravex-text-muted max-w-sm">{{ description }}</p>
-
-    <button
-      v-if="actionLabel"
-      class="btn-primary mt-4"
-      @click="emit('action')"
+    
+    <h3 class="text-lg font-medium text-text-primary mb-2">{{ title }}</h3>
+    <p class="text-sm text-text-tertiary max-w-md mb-6">{{ description }}</p>
+    
+    <ActionButton 
+      v-if="actionLabel" 
+      variant="primary" 
+      @click="$emit('action')"
     >
       {{ actionLabel }}
-    </button>
+    </ActionButton>
   </div>
 </template>

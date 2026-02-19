@@ -173,7 +173,7 @@ export function getAllMunicipalities(): Record<string, Municipality[]> {
  */
 export function getMunicipalityById(municipalityId: string): Municipality | null {
     const [stateId] = municipalityId.split('-')
-    const municipalities = getMunicipalitiesByState(stateId)
+    const municipalities = getMunicipalitiesByState(stateId || '')
     return municipalities.find(m => m.id === municipalityId) || null
 }
 
