@@ -527,7 +527,7 @@ AES-256 + hardware key. Sin contraseña es inerte. Sistema de revocación: nueva
 ## 📞 Contacto
 
 **Fundador**: José Manuel  
-**Email**: [tu@email.com]  
+**Email**: [josecamachojsmith99@gmail.com]  
 **Slack**: [#tyravex-dev]  
 
 ---
